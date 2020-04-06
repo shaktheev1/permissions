@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}
+  {{ unit.chapter_title }} - {{block.super}}
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'home'%}">Books</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'book_units' book.pk%}">{{book.title}}</a></li>
+  <li class="breadcrumb-item" active>{{ unit.chapter_number }}</li>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <a href="{% url 'new_element' book.pk unit.pk%}" class="btn btn-primary">NEW ELEMENT</a>
+</div>
+
+<table class="table">
+  <thead class="thead-inverse">
+    <tr>
+      <th>Element Number</th>
+      <th>Requested On</th>
+      <th>Granted On</th>
+      <th>Status</th>
+      <th>Last Followup</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for element in unit.elements.all %}
+      <tr>
+        <td>{{ element.element_number }}</td>
+        <td>{{ element.requested_on }}</td>
+        <td>{{ element.granted_on }}</td>
+        <td>{{ element.status }}</td>
+        <td><a href="{% url 'element_followups' book.pk unit.pk element.pk%}">{{ element.get_last_followup|naturalday }}</a></td>
+      </tr>
+    {% endfor %}  
+  </tbody>
+</table>
+
+{% endblock %}

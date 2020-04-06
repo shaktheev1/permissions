@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ book.title }} - {{block.super}}
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'home'%}">Books</a></li>
+  <li class="breadcrumb-item active">{{ book.title }}</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <a href="{% url 'new_unit' book.pk %}" class="btn btn-primary">NEW UNIT</a>
+</div>
+
+<table class="table">
+  <thead class="thead-inverse">
+    <tr>
+      <th>Chapter Number</th>
+      <th>Chapter Title</th>
+      <th>Active?</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for unit in book.units.all %}
+      <tr>
+        <td><a href="{% url 'unit_elements' book.pk unit.pk%}">{{ unit.chapter_number }}</a></td>
+        <td>{{ unit.chapter_title }}</td>
+        <td>{{ unit.active }}</td>
+      </tr>
+    {% endfor %}  
+  </tbody>
+</table>
+{% endblock %}

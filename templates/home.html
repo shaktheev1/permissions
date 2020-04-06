@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Books</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <a href="{% url 'new_book' %}" class="btn btn-primary">NEW BOOK</a>
+</div>
+
+<table class="table table-striped mb-4">
+    <thead class="thead-inverse">
+        <tr>
+        <th>Book</th>
+        <th>ISBN</th>
+        <th>Number of Chapters</th>
+        <th>Number of Units</th>
+        <th>Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+            <tr>
+                <td>
+                 <p class="mb-0">
+                    <a href="{% url 'book_units' book.pk %}">{{ book.title }}</a>
+                </p>
+                
+                </td>
+                <td class="align-middle"><small class="text-muted d-block">{{ book.isbn }}</small></td>
+                <td class="align-middle">{{book.get_chapters_count}}</td>
+                <td class="align-middle">{{book.get_elements_count}}</td>
+                <td class="align-middle">{{book.created_at|naturalday}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% include 'includes/pagination.html' %}
+
+{% endblock %}
