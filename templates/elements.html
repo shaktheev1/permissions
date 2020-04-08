@@ -17,6 +17,8 @@
 
 <div class="mb-4">
     <a href="{% url 'new_element' book.pk unit.pk%}" class="btn btn-primary">NEW ELEMENT</a>
+    <a href="{% url 'import_elements' book.pk unit.pk%}" class="btn btn-primary">IMPORT ELEMENTS</a>
+    <a href="{% url 'export_elements' book.pk unit.pk%}" class="btn btn-primary">EXPORT ELEMENT DETAILS</a>
 </div>
 
 <table class="table">

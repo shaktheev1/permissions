@@ -10,7 +10,7 @@ from django.views.generic import UpdateView
 from django.utils import timezone
 from django.views.generic import ListView
 from django.http import HttpResponse
-from .resources import BookResource, UnitResource
+from .resources import BookResource, UnitResource, ElementResource
 from tablib import Dataset
 from django.contrib import messages
 
@@ -187,7 +187,7 @@ def import_book(request):
             messages.success(request, 'Book submission successful')
             return redirect('home')
 
-    return render(request, 'books_import.html')
+    return render(request, 'import_books.html')
 
 def export_units(request, pk):
     units_resource = UnitResource()
@@ -197,7 +197,7 @@ def export_units(request, pk):
     response['Content-Disposition'] = 'attachment; filename={}.xlsx'.format(pk)
     return response
 
-def import_unit(request, pk):
+def import_units(request, pk):
     if request.method == 'POST':
         unit_resource = UnitResource()
         dataset = Dataset()
@@ -210,5 +210,29 @@ def import_unit(request, pk):
             unit_resource.import_data(dataset, dry_run=False)  # Actually import now
             messages.success(request, 'Unit submission successful')
             return redirect('book_units', pk=pk)
+    return render(request, 'import_units.html')
 
-    return render(request, 'unit_import.html')
+def export_elements(request, pk, pk1):
+    elements_resource = ElementResource()
+    queryset = Element.objects.filter(unit=pk1)
+    dataset = elements_resource.export(queryset)
+    response = HttpResponse(dataset.xlsx, content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename={}.xlsx'.format(pk1)
+    return response
+
+def import_elements(request, pk, pk1):
+    if request.method == 'POST':
+        element_resource = ElementResource()
+        dataset = Dataset()
+        new_element = request.FILES['myfile']
+
+        imported_data = dataset.load(new_element.read())
+        result = element_resource.import_data(dataset, dry_run=True)  # Test the data import
+
+        if not result.has_errors():
+            element_resource.import_data(dataset, dry_run=False)  # Actually import now
+            messages.success(request, 'Element submission successful')
+            return redirect('unit_elements', pk=pk, pk1=pk1)
+        else:
+            messages.success(request, 'Import Unsuccessful')
+    return render(request, 'import_elements.html')
