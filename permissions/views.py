@@ -9,6 +9,8 @@ from .models import Book, Unit, Element, FollowUp
 from django.views.generic import UpdateView
 from django.utils import timezone
 from django.views.generic import ListView
+from django.http import HttpResponse
+from .resources import BookResource
 
 class BookListView(ListView):
     model = Book
@@ -153,3 +155,18 @@ class FollowUpUpdateView(UpdateView):
         followups.updated_by = self.request.user
         followups.save()
         return redirect('element_followups', pk=followups.element.unit.book.pk, pk1=followups.element.unit.pk, fu=followups.element.pk)
+
+def export_books(request):
+    book_resource = BookResource()
+    dataset = book_resource.export()
+    response = HttpResponse(dataset.xls, content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="books.xls"'
+    return response
+
+def export_book(request, pk):
+    book_resource = BookResource()
+    queryset = Book.objects.filter(pk=pk)
+    dataset = book_resource.export(queryset)
+    response = HttpResponse(dataset.xls, content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename={}.xls'.format(queryset[0])
+    return response

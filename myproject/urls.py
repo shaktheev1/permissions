@@ -26,6 +26,8 @@ urlpatterns = [
     url(r'^settings/account/$', accounts_views.UserUpdateView.as_view(), name='my_account'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),   
+    url(r'^books/export/$', views.export_books, name='export_books'),
+    url(r'^books/(?P<pk>\d+)/export/$', views.export_book, name='export_book'),
     url(r'^books/(?P<pk>\d+)/$', views.book_units, name='book_units'),
     url(r'^books/new/$', views.new_book, name='new_book'),
     url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/$', views.unit_elements, name='unit_elements'),
