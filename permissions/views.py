@@ -10,7 +10,9 @@ from django.views.generic import UpdateView
 from django.utils import timezone
 from django.views.generic import ListView
 from django.http import HttpResponse
-from .resources import BookResource
+from .resources import BookResource, UnitResource
+from tablib import Dataset
+from django.contrib import messages
 
 class BookListView(ListView):
     model = Book
@@ -157,16 +159,56 @@ class FollowUpUpdateView(UpdateView):
         return redirect('element_followups', pk=followups.element.unit.book.pk, pk1=followups.element.unit.pk, fu=followups.element.pk)
 
 def export_books(request):
-    book_resource = BookResource()
-    dataset = book_resource.export()
-    response = HttpResponse(dataset.xls, content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="books.xls"'
+    books_resource = BookResource()
+    dataset = books_resource.export()
+    response = HttpResponse(dataset.xlsx, content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="books.xlsx"'
     return response
 
 def export_book(request, pk):
     book_resource = BookResource()
     queryset = Book.objects.filter(pk=pk)
     dataset = book_resource.export(queryset)
-    response = HttpResponse(dataset.xls, content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename={}.xls'.format(queryset[0])
+    response = HttpResponse(dataset.xlsx, content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename={}.xlsx'.format(queryset[0])
     return response
+
+def import_book(request):
+    if request.method == 'POST':
+        book_resource = BookResource()
+        dataset = Dataset()
+        new_book = request.FILES['myfile']
+
+        imported_data = dataset.load(new_book.read())
+        result = book_resource.import_data(dataset, dry_run=True)  # Test the data import
+
+        if not result.has_errors():
+            book_resource.import_data(dataset, dry_run=False)  # Actually import now
+            messages.success(request, 'Book submission successful')
+            return redirect('home')
+
+    return render(request, 'books_import.html')
+
+def export_units(request, pk):
+    units_resource = UnitResource()
+    queryset = Unit.objects.filter(book=pk)
+    dataset = units_resource.export(queryset)
+    response = HttpResponse(dataset.xlsx, content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename={}.xlsx'.format(pk)
+    return response
+
+def import_unit(request, pk):
+    if request.method == 'POST':
+        unit_resource = UnitResource()
+        dataset = Dataset()
+        new_unit = request.FILES['myfile']
+
+        imported_data = dataset.load(new_unit.read())
+        result = unit_resource.import_data(dataset, dry_run=True)  # Test the data import
+
+        if not result.has_errors():
+            unit_resource.import_data(dataset, dry_run=False)  # Actually import now
+            messages.success(request, 'Unit submission successful')
+            return redirect('book_units', pk=pk)
+
+    return render(request, 'unit_import.html')

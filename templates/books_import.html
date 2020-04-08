@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{%block title%}Import a new Book{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Import a new Book</li>
+{% endblock %}
+{% block content %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="myfile">
+    <button type="submit">Upload</button>
+  </form>
+{% endblock %}
