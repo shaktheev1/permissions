@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),   
     url(r'^books/export/$', views.export_books, name='export_books'),
     url(r'^books/import/$', views.import_book, name='import_book'),
+    url(r'^books/list/$', views.book_list, name='book_list'),
     url(r'^books/(?P<pk>\d+)/export/$', views.export_book, name='export_book'),
     url(r'^books/(?P<pk>\d+)/$', views.book_units, name='book_units'),
     url(r'^books/new/$', views.new_book, name='new_book'),

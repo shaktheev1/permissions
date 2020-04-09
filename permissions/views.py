@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from .resources import BookResource, UnitResource, ElementResource
 from tablib import Dataset
 from django.contrib import messages
+from collections import defaultdict
 
 class BookListView(ListView):
     model = Book
@@ -236,3 +237,18 @@ def import_elements(request, pk, pk1):
         else:
             messages.success(request, 'Import Unsuccessful')
     return render(request, 'import_elements.html')
+
+
+def book_list(request):
+    book = Book.objects.all()
+    context = defaultdict(list)
+    dict(context)
+    for p in book:
+        context[p.active].append(p.pk)
+    context.default_factory = None
+    return render(request, "booklist.html", {'context': context, 'book': book})
+
+# def book_list(request):
+#     context = Book.objects.values_list('active', flat=True).distinct()
+#     return render(request, "booklist.html", {'context': context})
+    
