@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.urls import reverse, resolve
 from django.test import TestCase
-from ..views import home, book_units, new_unit
+#from ..views import home, book_units, new_unit
 from ..models import Book, Unit
 from ..forms import NewUnitForm, NewBookForm
 

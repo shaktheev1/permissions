@@ -17,7 +17,7 @@
     <a href="{% url 'export_units' book.pk %}" class="btn btn-primary">EXPORT UNIT DETAILS</a>
 </div>
 
-<table class="table">
+<table class="table table-striped mb-4">
   <thead class="thead-inverse">
     <tr>
       <th>Chapter Number</th>
@@ -26,7 +26,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for unit in book.units.all %}
+    {% for unit in units %}
       <tr>
         <td><a href="{% url 'unit_elements' book.pk unit.pk%}">{{ unit.chapter_number }}</a></td>
         <td>{{ unit.chapter_title }}</td>
@@ -35,4 +35,5 @@
     {% endfor %}  
   </tbody>
 </table>
+{% include 'includes/pagination.html' %}
 {% endblock %}

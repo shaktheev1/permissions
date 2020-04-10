@@ -8,51 +8,72 @@ from django.utils.decorators import method_decorator
 from .models import Book, Unit, Element, FollowUp
 from django.views.generic import UpdateView
 from django.utils import timezone
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView
 from django.http import HttpResponse
 from .resources import BookResource, UnitResource, ElementResource
 from tablib import Dataset
 from django.contrib import messages
 from collections import defaultdict
+from django.urls import reverse_lazy
 
 class BookListView(ListView):
     model = Book
     context_object_name = 'books'
+    paginate_by = 3
     template_name = 'home.html'
-    paginate_by = 5
     
     def get_queryset(self):
         queryset = Book.objects.all().order_by('-created_at')
         return queryset
 
-def home(request):
-    return render(request)
+@method_decorator(login_required, name='dispatch')
+class NewBookView(CreateView):
+    model = Book
+    form_class = NewBookForm
+    success_url = reverse_lazy('home')
+    template_name = 'new_book.html'
 
-@login_required
-def new_book(request):
-    if request.method == 'POST':
-        form = NewBookForm(request.POST)
-        if form.is_valid():
-            book = form.save(commit=False)
-            book.title = form.cleaned_data.get('title')
-            book.isbn = form.cleaned_data.get('isbn')
-            book.created_at = form.cleaned_data.get('created_at')
-            book.active = form.cleaned_data.get('active')
-            book.save()
-            # book = Book.objects.create(
-            #     title = form.cleaned_data.get('title'),
-            #     isbn = form.cleaned_data.get('isbn'),
-            #     active = form.cleaned_data.get('active')
-            # )
-            return redirect('home')
-    else:
-        form = NewBookForm()
-    return render(request, 'new_book.html', {'form': form})    
+# @login_required    
+# def new_book(request):
+#     if request.method == 'POST':
+#         form = NewBookForm(request.POST)
+#         if form.is_valid():
+#             book = form.save(commit=False)
+#             book.title = form.cleaned_data.get('title')
+#             book.isbn = form.cleaned_data.get('isbn')
+#             book.created_at = form.cleaned_data.get('created_at')
+#             book.active = form.cleaned_data.get('active')
+#             book.save()
+#             # book = Book.objects.create(
+#             #     title = form.cleaned_data.get('title'),
+#             #     isbn = form.cleaned_data.get('isbn'),
+#             #     active = form.cleaned_data.get('active')
+#             # )
+#             return redirect('home')
+#     else:
+#         form = NewBookForm()
+#     return render(request, 'new_book.html', {'form': form})    
 
 
-def book_units(request, pk):
-    book = get_object_or_404(Book, pk=pk)
-    return render(request, 'units.html', {'book': book})
+class UnitsListView(ListView):
+    model = Unit
+    context_object_name = 'units'
+    paginate_by = 4
+    template_name = 'units.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['book'] = self.book
+        return super().get_context_data(**kwargs)
+
+    def get_queryset(self):
+        self.book = get_object_or_404(Book, pk=self.kwargs.get('pk'))
+        queryset = self.book.units.order_by('chapter_number')
+        return queryset
+    
+# def book_units(request, pk):
+#     book = get_object_or_404(Book, pk=pk)
+#     return render(request, 'units.html', {'book': book})
+
 
 def new_unit(request, pk):
     book = get_object_or_404(Book, pk=pk)
@@ -66,33 +87,31 @@ def new_unit(request, pk):
             unit.chapter_title = form.cleaned_data.get('chapter_title')
             unit.active = form.cleaned_data.get('active')
             unit.save()
-
-            # unit = Unit.objects.create(
-            #     book = book,
-            #     chapter_number = form.cleaned_data.get('chapter_number'),
-            #     chapter_title = form.cleaned_data.get('chapter_title'),
-            #     active = form.cleaned_data.get('active'),
-            # )
-
-        # chapter_number = request.POST['chapter_number']
-        # chapter_title = request.POST['chapter_title']
-        # active = request.POST['active']
-
-        #     unit = Unit.objects.create(
-        #     chapter_number = chapter_number,
-        #     chapter_title = chapter_title,
-        #     active = active,
-        #  )
             return redirect('book_units', pk=book.pk)
     else:
         form = NewUnitForm()
     return render(request, 'new_unit.html', {'book': book, 'form': form})
 
 
-def unit_elements(request, pk, pk1):
-    book = get_object_or_404(Book, pk=pk)
-    unit = get_object_or_404(Unit, pk=pk1)
-    return render(request, 'elements.html', {'book':book, 'unit': unit})
+class ElementsListView(ListView):
+    model = Element
+    context_object_name = 'elements'
+    paginate_by = 4
+    template_name = 'elements.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['unit'] = self.unit
+        return super().get_context_data(**kwargs)
+
+    def get_queryset(self):
+        self.unit = get_object_or_404(Unit, book__pk=self.kwargs.get('pk'), pk=self.kwargs.get('pk1'))
+        queryset = self.unit.elements.order_by('element_number')
+        return queryset
+
+# def unit_elements(request, pk, pk1):
+#      book = get_object_or_404(Book, pk=pk)
+#      unit = get_object_or_404(Unit, pk=pk1)
+#      return render(request, 'elements.html', {'book':book, 'unit': unit})
 
 
 def new_element(request, pk, pk1):
