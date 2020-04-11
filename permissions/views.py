@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import NewBookForm, NewUnitForm, NewElementForm, NewFollowupForm
 from django.utils.decorators import method_decorator
 from .models import Book, Unit, Element, FollowUp
-from django.views.generic import UpdateView
+from django.views.generic import DetailView, UpdateView, FormView
 from django.utils import timezone
 from django.views.generic import ListView, CreateView
 from django.http import HttpResponse
@@ -15,6 +15,8 @@ from tablib import Dataset
 from django.contrib import messages
 from collections import defaultdict
 from django.urls import reverse_lazy
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.edit import FormMixin
 
 class BookListView(ListView):
     model = Book
@@ -73,7 +75,6 @@ class UnitsListView(ListView):
 # def book_units(request, pk):
 #     book = get_object_or_404(Book, pk=pk)
 #     return render(request, 'units.html', {'book': book})
-
 
 def new_unit(request, pk):
     book = get_object_or_404(Book, pk=pk)
@@ -266,6 +267,27 @@ def book_list(request):
         context[p.active].append(p.pk)
     context.default_factory = None
     return render(request, "booklist.html", {'context': context, 'book': book})
+
+def unit_list(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+#    unit = get_object_or_404(Unit, pk=pk1)
+    element = Element.objects.filter(unit__book=pk)
+    context = defaultdict(list)
+    dict(context)
+    source=""
+    credit_line=""
+    rh_email=""
+    for p in element:
+        if not p.source is None:
+            source=p.source.strip()
+        if not p.credit_line is None:
+            credit_line=p.credit_line.strip()
+        if not p.rh_email is None:
+            rh_email=p.rh_email.strip()
+        s=source,credit_line,rh_email
+        context[s].append(p.pk)
+    context.default_factory = None
+    return render(request, "elementlist.html", {'context': context, 'element': element})
 
 # def book_list(request):
 #     context = Book.objects.values_list('active', flat=True).distinct()

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse, resolve
 
 STATUS_CHOICES = [ 
         ('Filled', 'FILLED'),
@@ -40,7 +41,6 @@ class Book(models.Model):
 
     def get_elements_count(self):
         return Element.objects.filter(unit__book=self).count() 
-   
 
 class Unit(models.Model):
     book = models.ForeignKey(Book, null=True, related_name='units', on_delete=models.CASCADE)
@@ -50,7 +50,8 @@ class Unit(models.Model):
 
     def __str__(self):
         return self.chapter_title
-
+       
+ 
 class Element(models.Model):
     unit = models.ForeignKey(Unit, null=True, related_name='elements', on_delete=models.CASCADE)
     element_number = models.CharField(max_length=30)

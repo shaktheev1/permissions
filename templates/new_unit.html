@@ -6,7 +6,6 @@
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'home' %}">Books</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'book_units' book.pk %}">{{ book.title }}</a></li>
   <li class="breadcrumb-item active">New unit</li>
 {% endblock %}
 

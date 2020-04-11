@@ -41,6 +41,7 @@ urlpatterns = [
     url(r'^books/(?P<pk>\d+)/new/$', views.new_unit, name='new_unit'),
     #url(r'^books/(?P<pk>\d+)/new/$', views.NewUnitView.as_view(), name='new_unit'),
     url(r'^books/(?P<pk>\d+)/new/(?P<pk1>\d+)/$', views.new_element, name='new_element'),
+    url(r'^books/(?P<pk>\d+)/list$', views.unit_list, name='unit_list'),
     url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/exportelements/$', views.export_elements, name='export_elements'),
     url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/importelements/$', views.import_elements, name='import_elements'),
     url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/followup/(?P<fu>\d+)/$', views.element_followups, name='element_followups'),
