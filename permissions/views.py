@@ -6,17 +6,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import NewBookForm, NewUnitForm, NewElementForm, NewFollowupForm
 from django.utils.decorators import method_decorator
 from .models import Book, Unit, Element, FollowUp
-from django.views.generic import DetailView, UpdateView, FormView
+from django.views.generic import DetailView, UpdateView, FormView, ListView, CreateView
 from django.utils import timezone
-from django.views.generic import ListView, CreateView
 from django.http import HttpResponse
 from .resources import BookResource, UnitResource, ElementResource
 from tablib import Dataset
-from django.contrib import messages
 from collections import defaultdict
 from django.urls import reverse_lazy
-from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import FormMixin
 
 class BookListView(ListView):
     model = Book
@@ -293,3 +289,7 @@ def unit_list(request, pk):
 #     context = Book.objects.values_list('active', flat=True).distinct()
 #     return render(request, "booklist.html", {'context': context})
     
+
+def send_email(request, pk, v):
+    return render(request, "sendemail.html", {'v': v})
+

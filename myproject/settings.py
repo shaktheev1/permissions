@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'accounts',
     'permissions',
     'import_export',
+
 ]
 
 MIDDLEWARE = [
