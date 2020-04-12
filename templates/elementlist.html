@@ -20,12 +20,12 @@
   </thead>
   <tbody>
   
-{% for k,v in context.items %}
-    <tr><td>Staus: {{k}}</td></tr>
-                <tr><td><a href="{% url 'send_email' 17 v%}"
+{% for ems_key,ems in context.items %}
+    <tr><td>Staus: {{ems_key}}</td></tr>
+    <tr><td><a href="{% url 'send_email' pk ems%}"
        class="btn btn-primary btn-sm"
        role="button">Send Email</a></td></tr>  
-    {% for x in v %}
+    {% for x in ems %}
         {% for e in element%}
         {% if x == e.pk %}
             <tr><td/><td>{{e.element_number}}</td>

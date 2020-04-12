@@ -13,6 +13,7 @@ from .resources import BookResource, UnitResource, ElementResource
 from tablib import Dataset
 from collections import defaultdict
 from django.urls import reverse_lazy
+import json
 
 class BookListView(ListView):
     model = Book
@@ -283,13 +284,15 @@ def unit_list(request, pk):
         s=source,credit_line,rh_email
         context[s].append(p.pk)
     context.default_factory = None
-    return render(request, "elementlist.html", {'context': context, 'element': element})
+    return render(request, "elementlist.html", {'context': context, 'element': element, 'pk': pk})
 
 # def book_list(request):
 #     context = Book.objects.values_list('active', flat=True).distinct()
 #     return render(request, "booklist.html", {'context': context})
     
 
-def send_email(request, pk, v):
-    return render(request, "sendemail.html", {'v': v})
+def send_email(request, pk, ems):
+    element = Element.objects.filter(unit__book=pk)
+    ems_list = json.loads(ems)
+    return render(request, "sendemail.html", {'ems_list': ems_list, 'element': element})
 

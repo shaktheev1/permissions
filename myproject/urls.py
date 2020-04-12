@@ -47,7 +47,7 @@ urlpatterns = [
     url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/followup/(?P<fu>\d+)/$', views.element_followups, name='element_followups'),
     url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/followup/(?P<fu>\d+)/new/$', views.new_followup, name='new_followup'),
     url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/followup/(?P<fu>\d+)/(?P<followup_pk>\d+)/edit/$', views.FollowUpUpdateView.as_view(), name='edit_followup'),
-    url(r'^books/(?P<pk>\d+)/sendemail/(?P<v>.+)/$', views.send_email, name='send_email'),
+    url(r'^books/(?P<pk>\d+)/sendemail/(?P<ems>.+)/$', views.send_email, name='send_email'),
     url(r'^admin/', admin.site.urls),
     url(r'^reset/$',
     auth_views.PasswordResetView.as_view(
