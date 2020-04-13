@@ -22,9 +22,9 @@
   
 {% for ems_key,ems in context.items %}
     <tr><td>Staus: {{ems_key}}</td></tr>
-    <tr><td><a href="{% url 'send_email' pk ems%}"
+    <tr><td><a href="{% url 'generate_agreement' pk ems%}"
        class="btn btn-primary btn-sm"
-       role="button">Send Email</a></td></tr>  
+       role="button">GENERATE AGREEMENT</a></td></tr>  
     {% for x in ems %}
         {% for e in element%}
         {% if x == e.pk %}

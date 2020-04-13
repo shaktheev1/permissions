@@ -1,17 +1,14 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}{% load static %}
 {% load humanize %}
 {% block breadcrumb %}
 <li class="breadcrumb-item active">Books</li>
 {% endblock %}
-
 {% block content %}
-
 <div class="mb-4">
     <a href="{% url 'new_book' %}" class="btn btn-primary">NEW BOOK</a>
     <a href="{% url 'import_book' %}" class="btn btn-primary">IMPORT BOOK</a>
     <a href="{% url 'export_books' %}" class="btn btn-primary">EXPORT BOOK DETAILS</a>
 </div>
-
 <table class="table table-striped mb-4">
     <thead class="thead-inverse">
         <tr>

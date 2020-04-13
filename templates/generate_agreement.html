@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>PDF of </title>
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    {% block stylesheet %}{% endblock %}
+</head>
+<body>
+{% block content %}
+<img src="{% static 'img/double-bubble-outline.png' %}"/>
+
+<h1>
+{% with element.all|first as e %}
+  {{ e.unit.book.isbn }}
+{% endwith %}
+</h1>
+<img src="../static/img/JBL_Logo.jpg"/>
+<ul>
+{% for ems in ems_list %}
+    {% for e in element%}
+        {% if ems == e.pk %}
+            <li>{{e.source}}</li>
+            <li>{{e.caption}}</li>
+            <li>{{e.status}}</li>
+        {% endif %}
+    {% endfor %}    
+{% endfor %}
+</ul>
+{% endblock %}
+</body>
+</html>
