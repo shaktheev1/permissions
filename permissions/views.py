@@ -14,6 +14,9 @@ from tablib import Dataset
 from collections import defaultdict
 from django.urls import reverse_lazy
 import json
+from django.conf import settings
+from django.template.loader import render_to_string
+import weasyprint
 
 class BookListView(ListView):
     model = Book
@@ -294,5 +297,9 @@ def unit_list(request, pk):
 def send_email(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
     ems_list = json.loads(ems)
-    return render(request, "sendemail.html", {'ems_list': ems_list, 'element': element})
+    html = render_to_string("sendemail.html", {'ems_list': ems_list, 'element': element})
+    response = HttpResponse(content_type="application/pdf")
+    response['Content-Disposition'] = 'filename="contract_{}.pdf"'.format(pk)
+    weasyprint.HTML(string=html).write_pdf(response, stylesheets=[weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')])
+    return response
 
