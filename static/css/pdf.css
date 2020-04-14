@@ -27,7 +27,6 @@
 
 @page {
   @top-right{
-      content: "Page " counter(page) " of " counter(pages);
-      /* background-image: url(../static/img/double-bubble-outline.png); */
+      background-image: url(../static/img/JBL_Logo.jpg);
   }
 }

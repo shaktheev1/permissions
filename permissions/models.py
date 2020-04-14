@@ -79,7 +79,6 @@ class Element(models.Model):
     updated_by = models.ForeignKey(User, null=True, related_name='+', on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
 
-
     def __str__(self):
         return self.element_number
 
@@ -96,5 +95,3 @@ class FollowUp(models.Model):
 
     def __str__(self):
         return str(self.followedup_at)
-
-    
