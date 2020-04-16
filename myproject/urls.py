@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/followup/(?P<fu>\d+)/new/$', views.new_followup, name='new_followup'),
     url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/followup/(?P<fu>\d+)/(?P<followup_pk>\d+)/edit/$', views.FollowUpUpdateView.as_view(), name='edit_followup'),
     url(r'^books/(?P<pk>\d+)/genagreement/(?P<ems>.+)/$', views.generate_agreement, name='generate_agreement'),
+    url(r'^books/(?P<pk>\d+)/emailagreement/(?P<ems>.+)/$', views.email_agreement, name='email_agreement'),
     url(r'^admin/', admin.site.urls),
     url(r'^reset/$',
     auth_views.PasswordResetView.as_view(

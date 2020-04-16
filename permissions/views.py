@@ -308,3 +308,32 @@ def generate_agreement(request, pk, ems):
     weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(response, stylesheets=[weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')], presentational_hints=True)
     return response
 
+def email_agreement(request, pk, ems):
+    element = Element.objects.filter(unit__book=pk)
+    book = get_object_or_404(Book, pk=pk)
+    ems_list = json.loads(ems)
+    captions=[]
+    for ems in ems_list:
+        x=0
+        for i, e in enumerate(element, 1):
+            if ems==e.pk:
+                captions.append(e.caption)
+
+    captions_c=comma_separator(captions)
+    
+    subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
+    message = "Dear Permission Manager, \n Greetings from S4Carlisle, \n Hope you are doing well! \n I am Shalini, Permission Specialist writing on behalf of my client Jones & Bartlett Learning, a textbook publishing company. I am currently working on {}. \n We would like to obtain permission to use the attached image of {} for this edition. I have attached a copy of the permission request for you, which contains more information of our publication and the rights that we are requesting.".format(book.title, captions_c)
+
+    email = EmailMessage(subject, message, 'shaktheev@gmail.com', ['shaktheev@gmail.com'])
+
+    html = render_to_string("generate_agreement.html", {'ems_list': ems_list, 'element': element})
+    out = BytesIO()
+    stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
+    weasyprint.HTML(string=html).write_pdf(out, stylesheets=stylesheets)
+    response = HttpResponse(content_type="application/pdf")
+    # email.attach("agreement_{}.pdf".format(pk), out.getvalue(), 'application/pdf')
+    email.send()
+    return render(request, 'done.html')
+
+def comma_separator(seq):
+    return ' and '.join([', '.join(seq[:-1]), seq[-1]] if len(seq) > 2 else seq)

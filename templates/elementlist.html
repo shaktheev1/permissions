@@ -24,7 +24,9 @@
     <tr><td>Staus: {{ems_key}}</td></tr>
     <tr><td><a href="{% url 'generate_agreement' pk ems%}"
        class="btn btn-primary btn-sm"
-       role="button">GENERATE AGREEMENT</a></td></tr>  
+       role="button">GENERATE AGREEMENT</a></td><td><a href="{% url 'email_agreement' pk ems%}"
+       class="btn btn-primary btn-sm"
+       role="button">EMAIL</a></td></tr>  
     {% for x in ems %}
         {% for e in element%}
         {% if x == e.pk %}
@@ -33,7 +35,6 @@
             <td>{{e.pk}}</td>
             </tr>
         {%endif%}
-
         {% endfor %}
     {% endfor %}
   

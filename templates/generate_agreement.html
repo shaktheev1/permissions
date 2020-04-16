@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <head>
 <meta charset="utf-8">
-<title>PDF of </title>
+<title>Permission</title>
 <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     {% block stylesheet %}{% endblock %}
 </head>
@@ -61,7 +61,10 @@
 {% for ems in ems_list %}
     {% for e in element%}
         {% if ems == e.pk %}
+            <div style="page-break-inside: avoid">
+            <p><b>{{e.file_name}}</b></p>
             <img class="responsive" src="../media/documents/9781284196290/{{e.unit.book.isbn}}_{{e.unit.chapter_number}}_{{e.element_number}}.jpg"/>
+            </div>
         {% endif %}
     {% endfor %}    
 {% endfor %}
