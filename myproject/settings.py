@@ -153,7 +153,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 's4permission@gmail.com'
+EMAIL_HOST_PASSWORD = 'S4Carlisle#123'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
 
 LOGIN_URL = 'login'
 

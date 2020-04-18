@@ -20,8 +20,6 @@ import weasyprint
 from django.core.mail import EmailMessage
 from io import BytesIO
 
-
-
 class BookListView(ListView):
     model = Book
     context_object_name = 'books'
@@ -209,7 +207,7 @@ def import_book(request):
 
         if not result.has_errors():
             book_resource.import_data(dataset, dry_run=False)  # Actually import now
-            messages.success(request, 'Book submission successful')
+            # messages.success(request, 'Book submission successful')
             return redirect('home')
 
     return render(request, 'import_books.html')
@@ -233,7 +231,7 @@ def import_units(request, pk):
 
         if not result.has_errors():
             unit_resource.import_data(dataset, dry_run=False)  # Actually import now
-            messages.success(request, 'Unit submission successful')
+            # messages.success(request, 'Unit submission successful')
             return redirect('book_units', pk=pk)
     return render(request, 'import_units.html')
 
@@ -256,10 +254,10 @@ def import_elements(request, pk, pk1):
 
         if not result.has_errors():
             element_resource.import_data(dataset, dry_run=False)  # Actually import now
-            messages.success(request, 'Element submission successful')
+            # messages.success(request, 'Element submission successful')
             return redirect('unit_elements', pk=pk, pk1=pk1)
-        else:
-            messages.success(request, 'Import Unsuccessful')
+        # else:
+            # messages.success(request, 'Import Unsuccessful')
     return render(request, 'import_elements.html')
 
 
@@ -311,20 +309,11 @@ def generate_agreement(request, pk, ems):
 def email_agreement(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
     book = get_object_or_404(Book, pk=pk)
-    ems_list = json.loads(ems)
-    captions=[]
-    for ems in ems_list:
-        x=0
-        for i, e in enumerate(element, 1):
-            if ems==e.pk:
-                captions.append(e.caption)
-
-    captions_c=comma_separator(captions)
-    
+    ems_list = json.loads(ems)    
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
-    message = "Dear Permission Manager, \n Greetings from S4Carlisle, \n Hope you are doing well! \n I am Shalini, Permission Specialist writing on behalf of my client Jones & Bartlett Learning, a textbook publishing company. I am currently working on {}. \n We would like to obtain permission to use the attached image of {} for this edition. I have attached a copy of the permission request for you, which contains more information of our publication and the rights that we are requesting.".format(book.title, captions_c)
+    message = render_to_string("emailbody.html", {'ems_list': ems_list, 'element': element})
 
-    email = EmailMessage(subject, message, 'shaktheev@gmail.com', ['shaktheev@gmail.com'])
+    email = EmailMessage(subject, message, 's4permission@gmail.com', ['shaktheev@gmail.com'])
 
     html = render_to_string("generate_agreement.html", {'ems_list': ems_list, 'element': element})
     out = BytesIO()
@@ -332,8 +321,18 @@ def email_agreement(request, pk, ems):
     weasyprint.HTML(string=html).write_pdf(out, stylesheets=stylesheets)
     response = HttpResponse(content_type="application/pdf")
     # email.attach("agreement_{}.pdf".format(pk), out.getvalue(), 'application/pdf')
+    email.content_subtype = "html"
     email.send()
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                e.requested_on=timezone.now()
+                e.save()
     return render(request, 'done.html')
 
-def comma_separator(seq):
-    return ' and '.join([', '.join(seq[:-1]), seq[-1]] if len(seq) > 2 else seq)
+
+def email_body(request, pk, ems):
+    element = Element.objects.filter(unit__book=pk)
+    book = get_object_or_404(Book, pk=pk)
+    ems_list = json.loads(ems)
+    return render(request, 'emailbody.html', {'ems_list': ems_list, 'element': element})

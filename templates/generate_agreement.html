@@ -39,9 +39,9 @@
     {% for e in element%}
         {% if ems == e.pk %}
                 <li><p></p>
-                    <p><b>JBL ID:</b> {{e.file_name}}</p>
-                    <p><b>Description:</b> {{e.caption}}</p>
-                    <p><b>Credit:</b> {{e.source}}</p>
+                    <p><b>JBL ID:</b> {{e.file_name}}<br/>
+                    <b>Description:</b> {{e.caption}}<br/>
+                    <b>Credit:</b> {{e.source}}</p>
                 </li>
         {% endif %}
     {% endfor %}    

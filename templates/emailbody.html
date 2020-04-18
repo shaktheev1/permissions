@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>Permission</title>
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    {% block stylesheet %}{% endblock %}
+</head>
+{% block content %}
+<body>
+<p>Dear Permission Manager,</p>
+<p>Greetings from S4Carlisle,</p>
+<p>Hope you are doing well!</p>
+<p>I am Shalini, Permission Specialist writing on behalf of my client Jones & Bartlett Learning, a textbook publishing company. I am currently working on </p>
+<p>{% with element.all|first as e %}
+  <b>{{ e.title }}</b>
+{% endwith %}</p>
+<p>We would like to obtain permission to use the attached image(s) of for this edition:
+<ol>    
+{% for ems in ems_list %}
+    {% for e in element%}
+        {% if ems == e.pk %}
+                <li><p></p>
+                    <p>{{e.caption}}</p>
+                </li>
+        {% endif %}
+    {% endfor %}    
+{% endfor %}
+</ol>
+I have attached a copy of the permission request for you, which contains more information of our publication and the rights that we are requesting.</p>
+<ol>    
+{% for ems in ems_list %}
+    {% for e in element%}
+        {% if ems == e.pk %}
+                <li><p></p>
+                    <p><b>JBL ID:</b> {{e.file_name}}<br/>
+                    <b>Description:</b> {{e.caption}}<br/>
+                    <b>Credit Line:</b> {{e.credit_line}}<br/>
+                    <b>Source:</b> {{e.source}}</p>
+                </li>
+        {% endif %}
+    {% endfor %}    
+{% endfor %}
+</ol>
+<p>I have attached image(s) for your reference. <b>Could you please sign and return a copy of the attached permission letter to my attention via E‐mail along with Hi resolution image(s)?</b> You can find the requested content at the end of the permission letter. Please let know if you have any questions or concerns about the rights that we are requesting.</p>
+<p>Your prompt response would be greatly appreciated!</p>
+<p>Thanks in advance for your help.</p>
+<p>Regards,<br/>
+Shalini Bakthavatchalam,<br/>
+Sr. Executive ‐ Text & Permissions,<br/>
+Rights and Media Services,<br/>
+S4Carlisle Publishing Services Pvt. Ltd.</p>
+
+</body>
+{% endblock %}
+</html>
