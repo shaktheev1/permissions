@@ -123,13 +123,32 @@ def new_element(request, pk, pk1):
     
     if request.method == 'POST':
         form = NewElementForm(request.POST)
+        user = User.objects.first()
         if form.is_valid():
             element = form.save(commit=False)
             element.book = book
             element.unit = unit
             element.element_number = form.cleaned_data.get('element_number')
+            element.specified_as = form.cleaned_data.get('specified_as')
+            element.caption = form.cleaned_data.get('caption')
+            element.source = form.cleaned_data.get('source')
+            element.credit_line = form.cleaned_data.get('credit_line')
+            element.status = form.cleaned_data.get('status')
+            element.source_link = form.cleaned_data.get('source_link')
+            element.title = form.cleaned_data.get('title')
+            element.rh_email = form.cleaned_data.get('rh_email')
+            element.alt_email = form.cleaned_data.get('alt_email')
+            element.rh_address = form.cleaned_data.get('rh_address')
+            element.phone = form.cleaned_data.get('phone')
+            element.fax = form.cleaned_data.get('fax')
+            element.insert_1 = form.cleaned_data.get('insert_1')
+            element.jbl_rh_name = form.cleaned_data.get('jbl_rh_name')
+            element.file_location = form.cleaned_data.get('file_location')
+            element.file_name = form.cleaned_data.get('file_name')
+            element.file_location = form.cleaned_data.get('file_location')
             element.requested_on = form.cleaned_data.get('requested_on')
             element.granted_on = form.cleaned_data.get('granted_on')
+            element.created_by = user
             element.status = form.cleaned_data.get('status')
             element.save()
             return redirect('unit_elements', pk=book.pk, pk1=unit.pk)
@@ -180,6 +199,20 @@ class FollowUpUpdateView(UpdateView):
         followups.updated_by = self.request.user
         followups.save()
         return redirect('element_followups', pk=followups.element.unit.book.pk, pk1=followups.element.unit.pk, fu=followups.element.pk)
+
+@method_decorator(login_required, name='dispatch')
+class ElementUpdateView(UpdateView):
+    model = Element
+    fields = '__all__'
+    template_name = 'edit_element.html'
+    pk_url_kwarg = 'element_pk'
+    context_object_name = 'element_e'
+
+    def form_valid(self, form):
+        element_e = form.save(commit=False)
+        element_e.updated_by = self.request.user
+        element_e.save()
+        return redirect('unit_elements', pk=element_e.unit.book.pk, pk1=element_e.unit.pk)
 
 def export_books(request):
     books_resource = BookResource()
@@ -289,7 +322,7 @@ def unit_list(request, pk):
         s=source,credit_line,rh_email
         context[s].append(p.pk)
     context.default_factory = None
-    return render(request, "elementlist.html", {'context': context, 'element': element, 'pk': pk})
+    return render(request, "elementlist.html", {'context': context, 'element': element, 'pk': pk, 'book': book})
 
 # def book_list(request):
 #     context = Book.objects.values_list('active', flat=True).distinct()
@@ -323,11 +356,11 @@ def email_agreement(request, pk, ems):
     # email.attach("agreement_{}.pdf".format(pk), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     email.send()
-    for ems in ems_list:
-        for e in element:
-            if ems==e.pk:
-                e.requested_on=timezone.now()
-                e.save()
+    # for ems in ems_list:
+    #     for e in element:
+    #         if ems==e.pk:
+    #             e.requested_on=timezone.now()
+    #             e.save()
     return render(request, 'done.html')
 
 

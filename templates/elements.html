@@ -39,6 +39,10 @@
         <td>{{ element.granted_on }}</td>
         <td>{{ element.status }}</td>
         <td><a href="{% url 'element_followups' unit.book.pk unit.pk element.pk%}">{{ element.get_last_followup|naturalday }}</a></td>
+        <td><a href="{% url 'edit_element' unit.book.pk unit.pk element.pk%}"
+       class="btn btn-primary btn-sm"
+       role="button">EDIT</a></td>
+
       </tr>
     {% endfor %}  
   </tbody>

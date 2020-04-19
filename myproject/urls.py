@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^books/new/$', views.NewBookView.as_view(), name='new_book'),
     # url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/$', views.unit_elements, name='unit_elements'),
     url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/$', views.ElementsListView.as_view(), name='unit_elements'),
+    url(r'^books/(?P<pk>\d+)/(?P<pk1>\d+)/(?P<element_pk>\d+)/edit/$', views.ElementUpdateView.as_view(), name='edit_element'),
     url(r'^books/(?P<pk>\d+)/importunit/$', views.import_units, name='import_units'),
     url(r'^books/(?P<pk>\d+)/exportunits/$', views.export_units, name='export_units'),
     url(r'^books/(?P<pk>\d+)/new/$', views.new_unit, name='new_unit'),

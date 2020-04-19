@@ -28,8 +28,9 @@ SPECIFIED_CHOICES = [
     ]
 
 class Book(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, blank=True)
     isbn = models.CharField(max_length=13, unique=True)
+    edition = models.CharField(max_length=10, blank=True)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
@@ -75,8 +76,8 @@ class Element(models.Model):
     granted_on = models.DateField(null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True, blank=True)
-    created_by = models.ForeignKey(User, null=True, related_name='+', on_delete=models.CASCADE)
-    updated_by = models.ForeignKey(User, null=True, related_name='+', on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
+    updated_by = models.ForeignKey(User, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -91,7 +92,7 @@ class Element(models.Model):
 class FollowUp(models.Model):
     element = models.ForeignKey(Element, null=True, related_name='follow_up', on_delete=models.CASCADE)
     followedup_at = models.DateTimeField(null=True)
-    followedup_by = models.ForeignKey(User, null=True, related_name="+", on_delete=models.CASCADE)
+    followedup_by = models.ForeignKey(User, null=True, blank=True, related_name="+", on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.followedup_at)
