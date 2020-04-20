@@ -5,36 +5,33 @@
 {% endblock %}
 {% block content %}
 <div class="mb-4">
-    <a href="{% url 'new_book' %}" class="btn btn-primary">NEW BOOK</a>
-    <a href="{% url 'import_book' %}" class="btn btn-primary">IMPORT BOOK</a>
-    <a href="{% url 'export_books' %}" class="btn btn-primary">EXPORT BOOK DETAILS</a>
+    <a href="{% url 'new_book' %}" class="btn btn-primary btn-sm">NEW BOOK</a>
+    <a href="{% url 'import_book' %}" class="btn btn-primary btn-sm">IMPORT BOOK</a>
+    <a href="{% url 'export_books' %}" class="btn btn-primary btn-sm">EXPORT BOOK DETAILS</a>
 </div>
 
 <table class="table table-striped mb-4">
     <thead class="thead-inverse">
         <tr>
-        <th>Book</th>
-        <th>Number of Chapters</th>
-        <th>Number of Units</th>
-        <th>Created</th>
-        <th>As CSV</th>
+        <th>BOOK</th>
+        <th>CHAPTERS</th>
+        <th>UNITS</th>
+        <th>CREATED ON</th>
+        <th>EXPORT AS</th>
         </tr>
     </thead>
     <tbody>
         {% for book in books %}
             <tr>
                 <td>
-                 <p class="mb-0">
-                    <a href="{% url 'book_units' book.pk %}">{{ book.title }}</a>
-                </p>
-                <p>
+                    <a href="{% url 'book_units' book.pk %}">{{ book.title }}</a><br/>
                     <small class="text-muted d-block">{{ book.isbn }}</small>
-                </p>
                 </td>
-                <td class="align-middle"><p>{{book.get_chapters_count}}</p></td>
-                <td class="align-middle"><p>{{book.get_elements_count}}</p></td>
-                <td class="align-middle"><p>{{book.created_at|naturalday}}</p></td>
-                <td class="align-middle"><p><a href="{% url 'export_book' book.pk %}" class="btn btn-primary">EXPORT</a></p></td>
+                <td class="align-middle">{{book.get_chapters_count}}</td>
+                <td class="align-middle">{{book.get_elements_count}}</td>
+                <td class="align-middle">{{book.created_at|naturalday}}</td>
+                <td class="align-middle"><a href="{% url 'export_book' book.pk %}" class="btn btn-primary btn-sm">XLSX</a></td>
+                <td class="align-middle"><a href="{% url 'edit_book' book.pk %}" class="btn btn-primary btn-sm" role="button">UPDATE</a></td>
             </tr>
         {% endfor %}
     </tbody>

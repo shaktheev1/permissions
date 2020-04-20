@@ -16,32 +16,30 @@
 {% block content %}
 
 <div class="mb-4">
-    <a href="{% url 'new_element' unit.book.pk unit.pk%}" class="btn btn-primary">NEW ELEMENT</a>
-    <a href="{% url 'import_elements' unit.book.pk unit.pk%}" class="btn btn-primary">IMPORT ELEMENTS</a>
-    <a href="{% url 'export_elements' unit.book.pk unit.pk%}" class="btn btn-primary">EXPORT ELEMENT DETAILS</a>
+    <a href="{% url 'new_element' unit.book.pk unit.pk%}" class="btn btn-primary btn-sm">NEW ELEMENT</a>
+    <a href="{% url 'import_elements' unit.book.pk unit.pk%}" class="btn btn-primary btn-sm">IMPORT ELEMENTS</a>
+    <a href="{% url 'export_elements' unit.book.pk unit.pk%}" class="btn btn-primary btn-sm">EXPORT ELEMENT DETAILS</a>
 </div>
 
-<table class="table">
+<table class="table table-striped mb-4">
   <thead class="thead-inverse">
     <tr>
-      <th>Element Number</th>
-      <th>Requested On</th>
-      <th>Granted On</th>
-      <th>Status</th>
-      <th>Last Followup</th>
+      <th>ELEMENT</th>
+      <th>REQUESTED ON</th>
+      <th>GRANTED ON</th>
+      <th>STATUS</th>
+      <th>LAST FOLLOWUP</th>
     </tr>
   </thead>
   <tbody>
     {% for element in elements %}
       <tr>
-        <td>{{ element.element_number }}</td>
-        <td>{{ element.requested_on }}</td>
-        <td>{{ element.granted_on }}</td>
-        <td>{{ element.status }}</td>
-        <td><a href="{% url 'element_followups' unit.book.pk unit.pk element.pk%}">{{ element.get_last_followup|naturalday }}</a></td>
-        <td><a href="{% url 'edit_element' unit.book.pk unit.pk element.pk%}"
-       class="btn btn-primary btn-sm"
-       role="button">EDIT</a></td>
+        <td class="align-middle">{{ element.element_number }}</td>
+        <td class="align-middle">{{ element.requested_on }}</td>
+        <td class="align-middle">{{ element.granted_on }}</td>
+        <td class="align-middle">{{ element.status }}</td>
+        <td class="align-middle"><a href="{% url 'element_followups' unit.book.pk unit.pk element.pk%}">{{ element.get_last_followup|naturalday }}</a></td>
+        <td class="align-middle"><a href="{% url 'edit_element' unit.book.pk unit.pk element.pk%}" class="btn btn-primary btn-sm" role="button">UPDATE</a></td>
 
       </tr>
     {% endfor %}  

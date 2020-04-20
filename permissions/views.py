@@ -19,6 +19,7 @@ from django.template.loader import render_to_string
 import weasyprint
 from django.core.mail import EmailMessage
 from io import BytesIO
+from django.db.models import Q
 
 class BookListView(ListView):
     model = Book
@@ -187,18 +188,32 @@ def test(request):
     return render(request, 'test.html')
 
 @method_decorator(login_required, name='dispatch')
-class FollowUpUpdateView(UpdateView):
-    model = FollowUp
-    fields = ('followedup_at', )
-    template_name = 'edit_followup.html'
-    pk_url_kwarg = 'followup_pk'
-    context_object_name = 'followups'
+class BookUpdateView(UpdateView):
+    model = Book
+    fields = ('isbn', 'title', 'edition', 'active')
+    template_name = 'edit_book.html'
+    pk_url_kwarg = 'book_pk'
+    context_object_name = 'book_e'
 
     def form_valid(self, form):
-        followups = form.save(commit=False)
-        followups.updated_by = self.request.user
-        followups.save()
-        return redirect('element_followups', pk=followups.element.unit.book.pk, pk1=followups.element.unit.pk, fu=followups.element.pk)
+        book_e = form.save(commit=False)
+        book_e.updated_by = self.request.user
+        book_e.save()
+        return redirect('home')
+
+@method_decorator(login_required, name='dispatch')
+class UnitUpdateView(UpdateView):
+    model = Unit
+    fields = ('chapter_number', 'chapter_title', 'active')
+    template_name = 'edit_unit.html'
+    pk_url_kwarg = 'unit_pk'
+    context_object_name = 'unit_e'
+
+    def form_valid(self, form):
+        unit_e = form.save(commit=False)
+        unit_e.updated_by = self.request.user
+        unit_e.save()
+        return redirect('book_units', pk=unit_e.book.pk)
 
 @method_decorator(login_required, name='dispatch')
 class ElementUpdateView(UpdateView):
@@ -213,6 +228,21 @@ class ElementUpdateView(UpdateView):
         element_e.updated_by = self.request.user
         element_e.save()
         return redirect('unit_elements', pk=element_e.unit.book.pk, pk1=element_e.unit.pk)
+
+@method_decorator(login_required, name='dispatch')
+class FollowUpUpdateView(UpdateView):
+    model = FollowUp
+    fields = ('followedup_at', )
+    template_name = 'edit_followup.html'
+    pk_url_kwarg = 'followup_pk'
+    context_object_name = 'followups'
+
+    def form_valid(self, form):
+        followups = form.save(commit=False)
+        followups.updated_by = self.request.user
+        followups.save()
+        return redirect('element_followups', pk=followups.element.unit.book.pk, pk1=followups.element.unit.pk, fu=followups.element.pk)
+
 
 def export_books(request):
     books_resource = BookResource()
@@ -340,7 +370,7 @@ def generate_agreement(request, pk, ems):
     return response
 
 def email_agreement(request, pk, ems):
-    element = Element.objects.filter(unit__book=pk)
+    element = Element.objects.filter(unit__book=pk, requested_on=None)
     book = get_object_or_404(Book, pk=pk)
     ems_list = json.loads(ems)    
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
@@ -356,11 +386,11 @@ def email_agreement(request, pk, ems):
     # email.attach("agreement_{}.pdf".format(pk), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     email.send()
-    # for ems in ems_list:
-    #     for e in element:
-    #         if ems==e.pk:
-    #             e.requested_on=timezone.now()
-    #             e.save()
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                e.requested_on=timezone.now()
+                e.save()
     return render(request, 'done.html')
 
 
@@ -369,3 +399,45 @@ def email_body(request, pk, ems):
     book = get_object_or_404(Book, pk=pk)
     ems_list = json.loads(ems)
     return render(request, 'emailbody.html', {'ems_list': ems_list, 'element': element})
+
+def requested_list(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+#    unit = get_object_or_404(Unit, pk=pk1)
+    element = Element.objects.filter(~Q(requested_on=None), granted_on=None, unit__book=pk).order_by('requested_on')
+    context = defaultdict(list)
+    dict(context)
+    source=""
+    credit_line=""
+    rh_email=""
+    for p in element:
+        if not p.source is None:
+            source=p.source.strip()
+        if not p.credit_line is None:
+            credit_line=p.credit_line.strip()
+        if not p.rh_email is None:
+            rh_email=p.rh_email.strip()
+        s=source,credit_line,rh_email
+        context[s].append(p.pk)
+    context.default_factory = None
+    return render(request, "requested_list.html", {'context': context, 'element': element, 'pk': pk, 'book': book})
+
+def granted_list(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+#    unit = get_object_or_404(Unit, pk=pk1)
+    element = Element.objects.filter(~Q(granted_on=None), unit__book=pk).order_by('granted_on')
+    context = defaultdict(list)
+    dict(context)
+    source=""
+    credit_line=""
+    rh_email=""
+    for p in element:
+        if not p.source is None:
+            source=p.source.strip()
+        if not p.credit_line is None:
+            credit_line=p.credit_line.strip()
+        if not p.rh_email is None:
+            rh_email=p.rh_email.strip()
+        s=source,credit_line,rh_email
+        context[s].append(p.pk)
+    context.default_factory = None
+    return render(request, "granted_list.html", {'context': context, 'element': element, 'pk': pk, 'book': book})   

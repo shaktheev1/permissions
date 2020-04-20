@@ -12,26 +12,27 @@
 {% block content %}
 
 <div class="mb-4">
-    <a href="{% url 'new_unit' book.pk %}" class="btn btn-primary">NEW UNIT</a>
-    <a href="{% url 'import_units' book.pk%}" class="btn btn-primary">IMPORT UNITS</a>
-    <a href="{% url 'export_units' book.pk %}" class="btn btn-primary">EXPORT UNIT DETAILS</a>
-    <a href="{% url 'unit_list' book.pk %}" class="btn btn-primary">PERMISSION</a>
+    <a href="{% url 'new_unit' book.pk %}" class="btn btn-primary btn-sm">NEW UNIT</a>
+    <a href="{% url 'import_units' book.pk%}" class="btn btn-primary btn-sm">IMPORT UNITS</a>
+    <a href="{% url 'export_units' book.pk %}" class="btn btn-primary btn-sm">EXPORT UNIT DETAILS</a>
+    <a href="{% url 'unit_list' book.pk %}" class="btn btn-primary btn-sm">PERMISSION</a>
 </div>
 
 <table class="table table-striped mb-4">
   <thead class="thead-inverse">
     <tr>
-      <th>Chapter Number</th>
-      <th>Chapter Title</th>
-      <th>Active?</th>
+      <th>CHAPTER NUMBER</th>
+      <th>CHAPTER TITLE</th>
+      <th>ACTIVE?</th>
     </tr>
   </thead>
   <tbody>
     {% for unit in units %}
       <tr>
-        <td><a href="{% url 'unit_elements' book.pk unit.pk%}">{{ unit.chapter_number }}</a></td>
-        <td>{{ unit.chapter_title }}</td>
-        <td>{{ unit.active }}</td>
+        <td class="align-middle"><a href="{% url 'unit_elements' book.pk unit.pk%}">{{ unit.chapter_number }}</a></td>
+        <td class="align-middle">{{ unit.chapter_title }}</td>
+        <td class="align-middle">{{ unit.active }}</td>
+        <td class="align-middle"><a href="{% url 'edit_unit' unit.book.pk unit.pk%}" class="btn btn-primary btn-sm" role="button">UPDATE</a></td>
       </tr>
     {% endfor %}  
   </tbody>

@@ -31,8 +31,7 @@
         <td>{{ followup.followedup_at }}</td>
         <td>{{ followup.followedup_by }}</td>
         <td><a href="{% url 'edit_followup' book.pk unit.pk element.pk followup.pk%}"
-       class="btn btn-primary btn-sm"
-       role="button">EDIT</a></td>
+       class="btn btn-primary btn-sm" role="button">UPDATE</a></td>
       </tr>
     {% endfor %}  
   </tbody>

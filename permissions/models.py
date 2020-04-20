@@ -73,7 +73,7 @@ class Element(models.Model):
     file_location = models.CharField(max_length=200, null=True, blank=True)
     file_name = models.CharField(max_length=80, null=True, blank=True)
     requested_on = models.DateField(null=True, blank=True)
-    granted_on = models.DateField(null=True, blank=True)
+    granted_on = models.DateTimeField(null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True, blank=True)
     created_by = models.ForeignKey(User, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
@@ -85,6 +85,9 @@ class Element(models.Model):
 
     def get_last_followup(self):
         return FollowUp.objects.filter(element=self).order_by('followedup_at').last()
+
+    def get_followup_count(self):
+        return FollowUp.objects.filter(element=self).count()        
     
     def get_source_as_markdown(self):
         return mark_safe(markdown(self.source, safe_mode='escape'))
