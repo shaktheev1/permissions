@@ -28,18 +28,14 @@
     {% for x in ems %}
         {% for e in element%}
         {% if x == e.pk%}
-            <p>Permission requested for {{e.element_number}} of chapter {{e.unit.chapter_number}} <b>{{e.requested_on|timesince}}</b> ago</p>
+            <p>Permission requested for {{e.element_number}} of chapter {{e.unit.chapter_number}} <b>{{e.requested_on|timesince}}</b> ago  <a href="{% url 'new_followup' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">FOLLOWUP</a></p>
             <p>Number of followups: {{e.get_followup_count}}</p>
         {%endif%}
         {% endfor %}
     {% endfor %}
-    <p><a href="{% url 'generate_agreement' pk ems%}"
+    <p><a href="{% url 'update_followups' pk ems%}"
        class="btn btn-primary btn-sm"
-       role="button">AGREEMENT</a> <a href="{% url 'email_body' pk ems%}"
-       class="btn btn-primary btn-sm"
-       role="button">PREVIEW</a> <a href="{% url 'email_agreement' pk ems%}"
-       class="btn btn-primary btn-sm"
-       role="button">SEND</a></p></td></tr>  
+       role="button">FOLLOWUP</a></p></td></tr>  
 {% endfor %} 
 </tbody>
 </table>

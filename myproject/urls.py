@@ -57,6 +57,7 @@ urlpatterns = [
     url(r'^books/(?P<pk>\d+)/genagreement/(?P<ems>.+)/$', views.generate_agreement, name='generate_agreement'),
     url(r'^books/(?P<pk>\d+)/emailagreement/(?P<ems>.+)/$', views.email_agreement, name='email_agreement'),
     url(r'^books/(?P<pk>\d+)/emailbody/(?P<ems>.+)/$', views.email_body, name='email_body'),
+    url(r'^books/(?P<pk>\d+)/followups/(?P<ems>.+)/$', views.update_followups, name='update_followups'),
     url(r'^admin/', admin.site.urls),
     url(r'^reset/$',
     auth_views.PasswordResetView.as_view(

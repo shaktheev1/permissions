@@ -336,7 +336,7 @@ def book_list(request):
 def unit_list(request, pk):
     book = get_object_or_404(Book, pk=pk)
 #    unit = get_object_or_404(Unit, pk=pk1)
-    element = Element.objects.filter(unit__book=pk)
+    element = Element.objects.filter(unit__book=pk, requested_on=None)
     context = defaultdict(list)
     dict(context)
     source=""
@@ -440,4 +440,22 @@ def granted_list(request, pk):
         s=source,credit_line,rh_email
         context[s].append(p.pk)
     context.default_factory = None
-    return render(request, "granted_list.html", {'context': context, 'element': element, 'pk': pk, 'book': book})   
+    return render(request, "granted_list.html", {'context': context, 'element': element, 'pk': pk, 'book': book})
+
+def update_followups(request, pk, ems):
+    element = Element.objects.filter(unit__book=pk)
+    book = get_object_or_404(Book, pk=pk)
+    user = User.objects.first()
+    # follow = Element.objects.all()
+    
+    ems_list = json.loads(ems)    
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                # f.followedup_at=timezone.now()
+                # f.save()
+                # print(follow_up.followedup_at)
+                # print(e.follow_up)
+                e.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
+                
+    return render(request, 'update_followups.html', {'ems_list': ems_list})
