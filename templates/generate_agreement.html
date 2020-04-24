@@ -8,13 +8,10 @@
 </head>
 {% block content %}
 <body>
-<p style="text-align:left;"><b>Integra LifeSciences Services</b> <span style="float:right;"><b>Date: {% now "m/d/Y" %}</b></span><br/>
-<b>Immeuble Sequoia 2</b><br/>
-<b>97 allée Alexandre Borodine</b><br/>
-<b>69800 Saint Priest – France</b><br/>
-<b>Telephone: 33 (0) 4 37 47 59 50</b><br/>
-<b>Fax: 33 (0) 4 37 47 59 25</b><br/>
-<b>Email: csemea@integralife.com</b></p>
+<p style="text-align:left;"><b>{% with element.all|first as e %}
+  <b>{{ e.rh_address|linebreaksbr }}</b>
+{% endwith %}</b> <span style="float:right;"><b>Date: {% now "m/d/Y" %}</b></span><br/>
+</p>
 <br/>
 <p><b>Dear Permission Manager,</b></p>
 <p>Ascend Learning, LLC (together with Ascend Affiliates, including, without limitation, Jones & Bartlett Learning, LLC, (collectively referred to herein as “Ascend Learning”) is currently preparing the educational product listed below (“Ascend Learning Material”). For purposes hereof, “Ascend Affiliates” shall include all companies controlled by, or under common control of, Ascend Learning, LLC.</p>
@@ -41,7 +38,7 @@
                 <li><p></p>
                     <p><b>JBL ID:</b> {{e.file_name}}<br/>
                     <b>Description:</b> {{e.caption}}<br/>
-                    <b>Credit:</b> {{e.source}}</p>
+                    <b>Credit:</b> {{e.credit_line}}</p>
                 </li>
         {% endif %}
     {% endfor %}    

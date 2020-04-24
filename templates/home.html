@@ -17,6 +17,8 @@
         <th>CHAPTERS</th>
         <th>UNITS</th>
         <th>CREATED ON</th>
+        <th>REQUESTED</th>
+        <th>GRANTED</th>
         <th>EXPORT AS</th>
         </tr>
     </thead>
@@ -30,6 +32,8 @@
                 <td class="align-middle">{{book.get_chapters_count}}</td>
                 <td class="align-middle">{{book.get_elements_count}}</td>
                 <td class="align-middle">{{book.created_at|naturalday}}</td>
+                <td class="align-middle">{{book.get_requested_count}}</td>
+                <td class="align-middle">{{book.get_granted_count}}</td>
                 <td class="align-middle"><a href="{% url 'export_book' book.pk %}" class="btn btn-primary btn-sm">XLSX</a></td>
                 <td class="align-middle"><a href="{% url 'edit_book' book.pk %}" class="btn btn-primary btn-sm" role="button">UPDATE</a></td>
             </tr>

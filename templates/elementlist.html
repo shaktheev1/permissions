@@ -33,7 +33,7 @@
         {% for e in element%}
         {% if x == e.pk%}
            {% if e.requested_on == None %} 
-            <p>{{e.element_number}} {{e.requested_on}}</p>
+            <p>{{e.element_number}}</p>
            {% endif %}
         {%endif%}
         {% endfor %}

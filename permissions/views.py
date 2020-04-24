@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import NewBookForm, NewUnitForm, NewElementForm, NewFollowupForm
 from django.utils.decorators import method_decorator
 from .models import Book, Unit, Element, FollowUp
-from django.views.generic import DetailView, UpdateView, FormView, ListView, CreateView
+from django.views.generic import DetailView, UpdateView, FormView, ListView, CreateView, DeleteView
 from django.utils import timezone
 from django.http import HttpResponse
 from .resources import BookResource, UnitResource, ElementResource
@@ -21,10 +21,11 @@ from django.core.mail import EmailMessage
 from io import BytesIO
 from django.db.models import Q
 
+@method_decorator(login_required, name='dispatch')
 class BookListView(ListView):
     model = Book
     context_object_name = 'books'
-    paginate_by = 3
+    paginate_by = 5
     template_name = 'home.html'
     
     def get_queryset(self):
@@ -215,6 +216,32 @@ class UnitUpdateView(UpdateView):
         unit_e.save()
         return redirect('book_units', pk=unit_e.book.pk)
 
+def delete_unit(request, pk, pk1):
+    book = get_object_or_404(Book, pk=pk)
+    unit = get_object_or_404(Unit, pk=pk1)
+    unit.delete()
+    return redirect('book_units', pk=pk)    
+
+def delete_element(request, pk, pk1, pk2):
+    book = get_object_or_404(Book, pk=pk)
+    unit = get_object_or_404(Unit, pk=pk1)
+    element = get_object_or_404(Element, pk=pk2)
+    element.delete()
+    return redirect('unit_elements', pk=pk, pk1=pk1)
+
+def delete_followup(request, pk, pk1, pk2, pk3):
+    book = get_object_or_404(Book, pk=pk)
+    unit = get_object_or_404(Unit, pk=pk1)
+    element = get_object_or_404(Element, pk=pk2)
+    followup = get_object_or_404(FollowUp, pk=pk3)
+    followup.delete()
+    return redirect('element_followups', pk=pk, pk1=pk1, fu=pk2)
+
+# class UnitDelete(DeleteView):
+#     model = Unit
+#     template_name = 'unit_confirm_delete.html'
+#     success_url = reverse_lazy('home')
+
 @method_decorator(login_required, name='dispatch')
 class ElementUpdateView(UpdateView):
     model = Element
@@ -364,7 +391,7 @@ def generate_agreement(request, pk, ems):
     ems_list = json.loads(ems)
     html = render_to_string("generate_agreement.html", {'ems_list': ems_list, 'element': element})
     response = HttpResponse(content_type="application/pdf")
-    #response['Content-Disposition'] = 'attachment; filename="agreement_{}.pdf"'.format(pk)
+    response['Content-Disposition'] = 'attachment; filename="agreement_{}.pdf"'.format(pk)
     response['Content-Disposition'] = 'filename="agreement_{}.pdf"'.format(pk)
     weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(response, stylesheets=[weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')], presentational_hints=True)
     return response
@@ -377,13 +404,14 @@ def email_agreement(request, pk, ems):
     message = render_to_string("emailbody.html", {'ems_list': ems_list, 'element': element})
 
     email = EmailMessage(subject, message, 's4permission@gmail.com', ['shaktheev@gmail.com'])
+    # email = EmailMessage(subject, message, 's4permission@gmail.com', ['MuthukumarS@s4carlisle.com', 'shaktheev@gmail.com', 'ShaliniB@s4carlisle.com', 'mahalakshmig@s4carlisle.com'])
 
     html = render_to_string("generate_agreement.html", {'ems_list': ems_list, 'element': element})
     out = BytesIO()
     stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
-    weasyprint.HTML(string=html).write_pdf(out, stylesheets=stylesheets)
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(out, stylesheets=stylesheets)
     response = HttpResponse(content_type="application/pdf")
-    # email.attach("agreement_{}.pdf".format(pk), out.getvalue(), 'application/pdf')
+    email.attach("agreement_{}.pdf".format(pk), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     email.send()
     for ems in ems_list:
@@ -446,16 +474,11 @@ def update_followups(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
     book = get_object_or_404(Book, pk=pk)
     user = User.objects.first()
-    # follow = Element.objects.all()
     
     ems_list = json.loads(ems)    
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
-                # f.followedup_at=timezone.now()
-                # f.save()
-                # print(follow_up.followedup_at)
-                # print(e.follow_up)
                 e.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
                 
     return render(request, 'update_followups.html', {'ems_list': ems_list})
