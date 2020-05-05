@@ -24,6 +24,8 @@ from permissions import views
 
 urlpatterns = [
     url(r'^$', views.BookListView.as_view(), name='home'),
+    url(r'^testing/$', views.testing, name='testing'),
+    url(r'^books/(?P<pk>\d+)/process_images$', views.process_images, name='process_images'),
     url(r'^signup/$', accounts_views.signup, name='signup'),
     url(r'^settings/account/$', accounts_views.UserUpdateView.as_view(), name='my_account'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),

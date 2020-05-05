@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse, resolve
 from django.db.models import Q
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxLengthValidator, MinLengthValidator
 
 STATUS_CHOICES = [ 
         ('Filled', 'FILLED'),
@@ -28,9 +30,14 @@ SPECIFIED_CHOICES = [
         ('Revised', 'REVISED'),
     ]
 
+# def isbn_validator(value):
+#     if len(value) < 13:
+#         raise ValidationError("{} is invalid, must be 13 characters". format(value))
+#     return value
+
 class Book(models.Model):
     title = models.CharField(max_length=100, blank=True)
-    isbn = models.CharField(max_length=13, unique=True)
+    isbn = models.CharField(max_length=13, unique=True, validators=[MinLengthValidator(13)])
     edition = models.CharField(max_length=10, blank=True)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
@@ -50,6 +57,7 @@ class Book(models.Model):
     def get_granted_count(self):
         return Element.objects.filter(~Q(granted_on = None), unit__book=self).count()
 
+
 class Unit(models.Model):
     book = models.ForeignKey(Book, null=True, related_name='units', on_delete=models.CASCADE)
     chapter_number = models.CharField(max_length=30)
@@ -63,11 +71,11 @@ class Unit(models.Model):
 class Element(models.Model):
     unit = models.ForeignKey(Unit, null=True, related_name='elements', on_delete=models.CASCADE)
     element_number = models.CharField(max_length=30)
-    specified_as = models.CharField(max_length=25, choices=SPECIFIED_CHOICES, blank=True)
+    # specified_as = models.CharField(max_length=25, choices=SPECIFIED_CHOICES, blank=True)
     caption = models.TextField(max_length=300, null=True, blank=True)
     source = models.CharField(max_length=200, null=True, blank=True)
     credit_line = models.TextField(max_length=300, null=True, blank=True)
-    status = models.CharField(max_length=25, choices=STATUS_CHOICES, blank=True)
+    # status = models.CharField(max_length=25, choices=STATUS_CHOICES, blank=True)
     source_link = models.CharField(max_length=150, null=True, blank=True)
     title = models.CharField(max_length=200, null=True, blank=True)
     rh_email = models.EmailField(null=True)

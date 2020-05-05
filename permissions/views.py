@@ -20,6 +20,25 @@ import weasyprint
 from django.core.mail import EmailMessage
 from io import BytesIO
 from django.db.models import Q
+import subprocess
+from .image_process import i_process
+
+def testing(request):
+    cmd = '../myproject/manag.sh'
+    subprocess.call(cmd)
+    #x = print_hello("Welcome to the party")
+    #return HttpResponse("<html><body>{}</body></html>".format(x))
+    return HttpResponse("Done")
+
+def process_images(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    isbn = book.isbn
+    media_path = settings.MEDIA_ROOT
+    #cmd = '../myproject/manag.sh'
+    #subprocess.call(cmd)
+    x = i_process(isbn, media_path)
+    #return HttpResponse("<html><body>{}</body></html>".format(x))
+    return HttpResponse(x)
 
 @method_decorator(login_required, name='dispatch')
 class BookListView(ListView):
