@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% load humanize %}
 
@@ -19,21 +20,22 @@
     <a href="{% url 'granted_list' book.pk %}" class="btn btn-primary btn-sm">GRANTED</a>
 </div>
 
+<h2 class="text-primary">Elements grouped by Source, Credit Line and RH Contact</h1>
 <table class="table table-striped mb-4">
-  <thead class="thead-inverse">
-    <tr>
-      <th>Elements</th>
-    </tr>
-  </thead>
-  <tbody>
+<tbody>
   
 {% for ems_key,ems in context.items %}
-    <tr><td><p><b>{{ems_key}}</b></p>
+    <tr><td><p class="p-3 mb-2 bg-info text-white"><b>Source:</b> {{ems_key.0}}<br/>
+    <b>Credit Line:</b> {{ems_key.1}}<br/>
+    <b>RH Contact:</b> {{ems_key.2}}</p>
     {% for x in ems %}
+    <p><b>{{forloop.counter}}. </b>
         {% for e in element%}
         {% if x == e.pk%}
            {% if e.requested_on == None %} 
-            <p>{{e.element_number}}</p>
+            <b>Element Number:</b> {{e.element_number}}<br/>
+            <b> Chapter Number:</b> {{e.unit.chapter_number}}<br/>
+            <b> Caption:</b> {{e.caption}}</p>
            {% endif %}
         {%endif%}
         {% endfor %}

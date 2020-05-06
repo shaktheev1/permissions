@@ -60,7 +60,7 @@
         {% if ems == e.pk %}
             <div style="page-break-inside: avoid">
             <p><b>{{e.file_name}}</b></p>
-            <img class="responsive" src="../media/documents/9781284196290/{{e.unit.book.isbn}}_{{e.unit.chapter_number}}_{{e.element_number}}.jpg"/>
+            <p><img src="../media/documents/9781284196290/resized/{{e.unit.book.isbn}}_{{e.unit.chapter_number}}_{{e.element_number}}.jpg"/></p>
             </div>
         {% endif %}
     {% endfor %}    
