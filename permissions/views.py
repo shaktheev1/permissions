@@ -450,7 +450,7 @@ def email_body(request, pk, ems):
 def requested_list(request, pk):
     book = get_object_or_404(Book, pk=pk)
 #    unit = get_object_or_404(Unit, pk=pk1)
-    element = Element.objects.filter(~Q(requested_on=None), granted_on=None, unit__book=pk).order_by('requested_on')
+    element = Element.objects.filter(~Q(requested_on=None), granted_on=None, permission_status=True, unit__book=pk).order_by('requested_on')
     context = defaultdict(list)
     dict(context)
     source=""
@@ -501,3 +501,184 @@ def update_followups(request, pk, ems):
                 e.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
                 
     return render(request, 'update_followups.html', {'ems_list': ems_list})
+
+def update_granted(request, pk, ems):
+    element = Element.objects.filter(unit__book=pk)
+    book = get_object_or_404(Book, pk=pk)
+    user = User.objects.first()
+    
+    ems_list = json.loads(ems)    
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                e.granted_on=timezone.now()
+                e.updated_by=user
+                e.save()
+                # element.create(granted_on=timezone.now(), updated_by=user)
+    return render(request, 'update_granted.html', {'ems_list': ems_list})
+
+def update_granted_e(request, pk, pk1, pk2):
+    book = get_object_or_404(Book, pk=pk)
+    unit = get_object_or_404(Unit, pk=pk1)
+    element = get_object_or_404(Element, pk=pk2)
+    user = User.objects.first()
+    element.granted_on=timezone.now()
+    element.updated_by=user
+    element.save()
+                # element.create(granted_on=timezone.now(), updated_by=user)
+    return render(request, 'update_granted_e.html', {'element': element})
+
+def followup_agreement(request, pk, ems):
+    element = Element.objects.filter(unit__book=pk)
+    ems_list = json.loads(ems)
+    html = render_to_string("generate_followup_agreement.html", {'ems_list': ems_list, 'element': element})
+    response = HttpResponse(content_type="application/pdf")
+    response['Content-Disposition'] = 'attachment; filename="agreement_{}.pdf"'.format(pk)
+    response['Content-Disposition'] = 'filename="agreement_{}.pdf"'.format(pk)
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(response, stylesheets=[weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')], presentational_hints=True)
+    return response
+
+def followup_agreement_e(request, pk, pk1, pk2):
+    book = get_object_or_404(Book, pk=pk)
+    unit = get_object_or_404(Unit, pk=pk1)
+    element = get_object_or_404(Element, pk=pk2)
+    user = User.objects.first()
+    html = render_to_string("generate_followup_agreement_e.html", {'element': element})
+    response = HttpResponse(content_type="application/pdf")
+    response['Content-Disposition'] = 'attachment; filename="agreement_{}.pdf"'.format(pk)
+    response['Content-Disposition'] = 'filename="agreement_{}.pdf"'.format(pk)
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(response, stylesheets=[weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')], presentational_hints=True)
+    return response
+
+def followup_email_body(request, pk, ems):
+    element = Element.objects.filter(unit__book=pk)
+    book = get_object_or_404(Book, pk=pk)
+
+    # followup = FollowUp.objects.filter(element__unit__book=pk)
+
+    dates = defaultdict(list)
+    dict(dates)
+
+    ems_list = json.loads(ems)
+
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                dates[e.element_number].append(e.follow_up.all().order_by('followedup_at'))
+                #dates=e.follow_up.all()
+    dates.default_factory = None                
+    return render(request, 'emailbody_followup.html', {'ems_list': ems_list, 'element': element, 'dates': dates})
+
+def followup_email_body_e(request, pk, pk1, pk2):
+    book = get_object_or_404(Book, pk=pk)
+    unit = get_object_or_404(Unit, pk=pk1)
+    element = get_object_or_404(Element, pk=pk2)
+    user = User.objects.first()
+    return render(request, 'emailbody_followup_e.html', {'element': element})
+
+
+def followup_email_agreement(request, pk, ems):
+    element = Element.objects.filter(unit__book=pk)
+    book = get_object_or_404(Book, pk=pk)
+    dates = defaultdict(list)
+    dict(dates)
+    ems_list = json.loads(ems)   
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                dates[e.element_number].append(e.follow_up.all().order_by('followedup_at'))
+                #dates=e.follow_up.all()
+    dates.default_factory = None  
+    subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
+    message = render_to_string("emailbody_followup.html", {'ems_list': ems_list, 'element': element, 'dates': dates})
+
+    email = EmailMessage(subject, message, 's4permission@gmail.com', ['shaktheev@gmail.com'])
+    # email = EmailMessage(subject, message, 's4permission@gmail.com', ['MuthukumarS@s4carlisle.com', 'shaktheev@gmail.com', 'ShaliniB@s4carlisle.com', 'mahalakshmig@s4carlisle.com'])
+
+    html = render_to_string("generate_followup_agreement.html", {'ems_list': ems_list, 'element': element})
+    out = BytesIO()
+    stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(out, stylesheets=stylesheets)
+    response = HttpResponse(content_type="application/pdf")
+    email.attach("agreement_{}.pdf".format(pk), out.getvalue(), 'application/pdf')
+    email.content_subtype = "html"
+    email.send()
+    user = User.objects.first()
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                e.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
+                e.save()
+    return render(request, 'done.html')
+
+def followup_email_agreement_e(request, pk, pk1, pk2):
+    book = get_object_or_404(Book, pk=pk)
+    unit = get_object_or_404(Unit, pk=pk1)
+    element = get_object_or_404(Element, pk=pk2)
+    user = User.objects.first() 
+
+    subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
+    message = render_to_string("emailbody_followup_e.html", {'element': element})
+
+    email = EmailMessage(subject, message, 's4permission@gmail.com', ['shaktheev@gmail.com'])
+    # email = EmailMessage(subject, message, 's4permission@gmail.com', ['MuthukumarS@s4carlisle.com', 'shaktheev@gmail.com', 'ShaliniB@s4carlisle.com', 'mahalakshmig@s4carlisle.com'])
+
+    html = render_to_string("generate_followup_agreement_e.html", {'element': element})
+    out = BytesIO()
+    stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(out, stylesheets=stylesheets)
+    response = HttpResponse(content_type="application/pdf")
+    email.attach("agreement_{}.pdf".format(pk), out.getvalue(), 'application/pdf')
+    email.content_subtype = "html"
+    email.send()
+    
+    element.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
+    element.save()
+    return render(request, 'done.html')
+
+def update_status_denied(request, pk, pk1, pk2):
+    book = get_object_or_404(Book, pk=pk)
+    unit = get_object_or_404(Unit, pk=pk1)
+    element = get_object_or_404(Element, pk=pk2)
+    user = User.objects.first()
+    element.permission_status=False
+    element.denied_on=timezone.now()
+    element.updated_by=user
+    element.save()
+                # element.create(granted_on=timezone.now(), updated_by=user)
+    return render(request, 'update_status_denied.html', {'element': element})
+
+
+def update_status_restore(request, pk, pk1, pk2):
+    book = get_object_or_404(Book, pk=pk)
+    unit = get_object_or_404(Unit, pk=pk1)
+    element = get_object_or_404(Element, pk=pk2)
+    user = User.objects.first()
+    element.permission_status=True
+    element.denied_on=timezone.now()
+    element.updated_by=user
+    element.save()
+                # element.create(granted_on=timezone.now(), updated_by=user)
+    return render(request, 'update_status_restore.html', {'element': element})
+
+def denied_list(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+#    unit = get_object_or_404(Unit, pk=pk1)
+    element = Element.objects.filter(permission_status=False, unit__book=pk)
+    context = defaultdict(list)
+    dict(context)
+    source=""
+    credit_line=""
+    rh_email=""
+    for p in element:
+        if not p.source is None:
+            source=p.source.strip()
+        if not p.credit_line is None:
+            credit_line=p.credit_line.strip()
+        if not p.rh_email is None:
+            rh_email=p.rh_email.strip()
+        s=source,credit_line,rh_email
+        context[s].append(p.pk)
+    context.default_factory = None
+    return render(request, "denied_list.html", {'context': context, 'element': element, 'pk': pk, 'book': book})
+

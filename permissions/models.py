@@ -4,6 +4,7 @@ from django.urls import reverse, resolve
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator, MinLengthValidator
+from datetime import datetime
 
 STATUS_CHOICES = [ 
         ('Filled', 'FILLED'),
@@ -67,7 +68,6 @@ class Unit(models.Model):
     def __str__(self):
         return self.chapter_title
        
- 
 class Element(models.Model):
     unit = models.ForeignKey(Unit, null=True, related_name='elements', on_delete=models.CASCADE)
     element_number = models.CharField(max_length=30)
@@ -89,6 +89,8 @@ class Element(models.Model):
     file_name = models.CharField(max_length=80, null=True, blank=True)
     requested_on = models.DateField(null=True, blank=True)
     granted_on = models.DateTimeField(null=True, blank=True)
+    permission_status = models.BooleanField(default=True)
+    denied_on = models.DateTimeField(null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True, blank=True)
     created_by = models.ForeignKey(User, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
@@ -101,15 +103,25 @@ class Element(models.Model):
     def get_last_followup(self):
         return FollowUp.objects.filter(element=self).order_by('followedup_at').last()
 
+    def get_followup_dates(self):
+        followup_dates = FollowUp.objects.filter(element=self).order_by('-followedup_at')
+        f_dates = list(followup_dates)
+        return followup_dates
+
     def get_followup_count(self):
-        return FollowUp.objects.filter(element=self).count()        
+        return FollowUp.objects.filter(element=self).count()    
     
     def get_source_as_markdown(self):
         return mark_safe(markdown(self.source, safe_mode='escape'))
+    
+    def get_followup_date(self):
+        followup_date = FollowUp.objects.filter(element=self).order_by('followedup_at')
+        f_dates = followup_date
+        return f_dates
 
 class FollowUp(models.Model):
     element = models.ForeignKey(Element, null=True, related_name='follow_up', on_delete=models.CASCADE)
-    followedup_at = models.DateTimeField(null=True)
+    followedup_at = models.DateField(null=True)
     followedup_by = models.ForeignKey(User, null=True, blank=True, related_name="+", on_delete=models.CASCADE)
 
     def __str__(self):

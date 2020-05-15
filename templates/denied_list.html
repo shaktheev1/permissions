@@ -3,14 +3,14 @@
 {% load humanize %}
 
 {% block title %}
-  Granted List
+  Denied List
 {% endblock %}
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'home'%}">Books</a></li>
   <li class="breadcrumb-item"><a href="{% url 'book_units' pk%}">{{ book.title }}</a></li>
   <li class="breadcrumb-item"><a href="{% url 'unit_list' pk%}">Permission</a></li>
-  <li class="breadcrumb-item active">Granted</li>
+  <li class="breadcrumb-item active">Denied</li>
 {% endblock %}
 
 {% block content %}
@@ -31,7 +31,7 @@
         <b>Element Number:</b> {{e.element_number}}<br/>
             <b> Chapter Number:</b> {{e.unit.chapter_number}}<br/>
             <b> Caption:</b> {{e.caption}}<br/>
-            <b> Permission:</b> Granted {{e.granted_on|timesince}} ago</p>
+            <b> Permission </b> denied {{e.denied_on|timesince}} ago <a href="{% url 'update_status_restore' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">RESTORE</a></p>
         {%endif%}
         {% endfor %}
     {% endfor %}
