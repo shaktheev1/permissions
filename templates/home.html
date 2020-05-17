@@ -28,6 +28,7 @@
                 <td>
                     <a href="{% url 'book_units' book.pk %}">{{ book.title }}</a><br/>
                     <small class="text-muted d-block">{{ book.isbn }}</small>
+                    <small class="text-muted d-block">{{ book.publisher.publisher_name }}</small>
                 </td>
                 <td class="align-middle">{{book.get_chapters_count}}</td>
                 <td class="align-middle">{{book.get_elements_count}}</td>

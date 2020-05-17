@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator, MinLengthValidator
 from datetime import datetime
+from publisher.models import Publisher
 
 STATUS_CHOICES = [ 
         ('Filled', 'FILLED'),
@@ -37,6 +38,7 @@ SPECIFIED_CHOICES = [
 #     return value
 
 class Book(models.Model):
+    publisher = models.ForeignKey(Publisher, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank=True)
     isbn = models.CharField(max_length=13, unique=True, validators=[MinLengthValidator(13)])
     edition = models.CharField(max_length=10, blank=True)
@@ -62,11 +64,11 @@ class Book(models.Model):
 class Unit(models.Model):
     book = models.ForeignKey(Book, null=True, related_name='units', on_delete=models.CASCADE)
     chapter_number = models.CharField(max_length=30)
-    chapter_title = models.CharField(max_length=100)
+    chapter_title = models.CharField(max_length=100, null=True, blank=True)
     active = models.BooleanField()
 
     def __str__(self):
-        return self.chapter_title
+        return self.chapter_number
        
 class Element(models.Model):
     unit = models.ForeignKey(Unit, null=True, related_name='elements', on_delete=models.CASCADE)

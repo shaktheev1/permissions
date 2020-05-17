@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 
     'accounts',
     'permissions',
+    'publisher',
     'import_export',
     'sorl.thumbnail',
 

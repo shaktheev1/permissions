@@ -12,6 +12,8 @@ class BookResource(resources.ModelResource):
 class UnitResource(resources.ModelResource):
     class Meta:
         model = Unit
+        list_display = ('chapter_number', 'chapter_title')
+
 
 class ElementResource(resources.ModelResource):
     class Meta:
