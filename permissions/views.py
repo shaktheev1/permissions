@@ -22,6 +22,8 @@ from io import BytesIO
 from django.db.models import Q
 import subprocess
 from .image_process import i_process
+from .load_data import import_data
+import pandas as pd
 
 def testing(request):
     cmd = '../myproject/manag.sh'
@@ -40,6 +42,21 @@ def process_images(request, pk):
     #return HttpResponse("<html><body>{}</body></html>".format(x))
     return HttpResponse(x)
 
+def process_data(request, pk):
+    if request.method == 'POST':
+        book_resource = BookResource()
+        dataset = Dataset()
+        new_book = request.FILES['myfile']
+        imported_data = dataset.load(new_book.read())
+        book = get_object_or_404(Book, pk=pk)
+        isbn = book.isbn
+        media_path = settings.MEDIA_ROOT
+        data = imported_data.export('df')
+        x = import_data(isbn, data)
+    else:
+        return render(request, 'import_books.html')
+    return HttpResponse(x)
+    
 @method_decorator(login_required, name='dispatch')
 class BookListView(ListView):
     model = Book

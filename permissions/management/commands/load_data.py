@@ -13,7 +13,7 @@ class Command(BaseCommand):
     help = "Loads data from pet_data.csv into our Pet model"
 
     def handle(self, *args, **options):
-        data = pd.read_excel('/Volumes/Data/move_on/django/projects/myproject/myproject/data/data.xlsx','Sheet1')
+        data = pd.read_excel('/Volumes/Data/move_on/django/projects/myproject/myproject/data/data1.xlsx','Sheet1')
         # unit = Unit()
         # unit.chapter_number=123
         # unit.chapter_title="Checker"

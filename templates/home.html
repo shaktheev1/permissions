@@ -6,8 +6,8 @@
 {% block content %}
 <div class="mb-4">
     <a href="{% url 'new_book' %}" class="btn btn-primary btn-sm">NEW BOOK</a>
-    <a href="{% url 'import_book' %}" class="btn btn-primary btn-sm">IMPORT BOOK</a>
-    <a href="{% url 'export_books' %}" class="btn btn-primary btn-sm">EXPORT BOOK DETAILS</a>
+    <!-- <a href="{% url 'import_book' %}" class="btn btn-primary btn-sm">IMPORT BOOK</a>
+    <a href="{% url 'export_books' %}" class="btn btn-primary btn-sm">EXPORT BOOK DETAILS</a> -->
 </div>
 
 <table class="table table-striped mb-4">
@@ -16,10 +16,10 @@
         <th>BOOK</th>
         <th>CHAPTERS</th>
         <th>UNITS</th>
-        <th>CREATED ON</th>
+        <!-- <th>CREATED ON</th> -->
         <th>REQUESTED</th>
         <th>GRANTED</th>
-        <th>EXPORT AS</th>
+        <!-- <th>EXPORT AS</th> -->
         </tr>
     </thead>
     <tbody>
@@ -32,10 +32,10 @@
                 </td>
                 <td class="align-middle">{{book.get_chapters_count}}</td>
                 <td class="align-middle">{{book.get_elements_count}}</td>
-                <td class="align-middle">{{book.created_at|naturalday}}</td>
+                <!-- <td class="align-middle">{{book.created_at|naturalday}}</td> -->
                 <td class="align-middle">{{book.get_requested_count}}</td>
                 <td class="align-middle">{{book.get_granted_count}}</td>
-                <td class="align-middle"><a href="{% url 'export_book' book.pk %}" class="btn btn-primary btn-sm">XLSX</a></td>
+                <!-- <td class="align-middle"><a href="{% url 'export_book' book.pk %}" class="btn btn-primary btn-sm">XLSX</a></td> -->
                 <td class="align-middle"><a href="{% url 'edit_book' book.pk %}" class="btn btn-primary btn-sm" role="button">UPDATE</a></td>
             </tr>
         {% endfor %}
