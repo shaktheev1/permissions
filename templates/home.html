@@ -23,6 +23,9 @@
         </tr>
     </thead>
     <tbody>
+        {%if books.count == 0 %}
+             <p>No books on the portal yet!</p>
+        {% else %}
         {% for book in books %}
             <tr>
                 <td>
@@ -39,6 +42,7 @@
                 <td class="align-middle"><a href="{% url 'edit_book' book.pk %}" class="btn btn-primary btn-sm" role="button">UPDATE</a></td>
             </tr>
         {% endfor %}
+        {% endif %}
     </tbody>
 </table>
 

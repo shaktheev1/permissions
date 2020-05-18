@@ -24,6 +24,45 @@ import subprocess
 from .image_process import i_process
 from .load_data import import_data
 import pandas as pd
+import logging
+
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(name)-12s %(levelname)-8s %(message)s'
+        },
+        'file': {
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': '/Volumes/Data/move_on/django/projects/myproject/myproject/log/debug.log'
+        }
+    },
+    'loggers': {
+        '': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file']
+        },
+        'django.request': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file']
+        }
+    }
+})
+
+
+logger = logging.getLogger(__name__)
 
 def testing(request):
     cmd = '../myproject/manag.sh'
@@ -53,6 +92,8 @@ def process_data(request, pk):
         media_path = settings.MEDIA_ROOT
         data = imported_data.export('df')
         x = import_data(isbn, data)
+        user = User.objects.first()
+        logger.info("Imported by {}".format(user))
     else:
         return render(request, 'import_books.html')
     return HttpResponse(x)

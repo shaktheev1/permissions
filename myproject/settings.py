@@ -62,6 +62,7 @@ INSTALLED_APPS = [
 
 ]
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -166,4 +167,7 @@ EMAIL_USE_TLS = True
 LOGIN_URL = 'login'
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
+
+
+
 

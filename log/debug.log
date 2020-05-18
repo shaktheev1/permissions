@@ -1,0 +1,122 @@
+2020-05-18 23:03:32,787 PIL.Image    DEBUG    Importing BlpImagePlugin
+2020-05-18 23:03:32,788 PIL.Image    DEBUG    Importing BmpImagePlugin
+2020-05-18 23:03:32,788 PIL.Image    DEBUG    Importing BufrStubImagePlugin
+2020-05-18 23:03:32,789 PIL.Image    DEBUG    Importing CurImagePlugin
+2020-05-18 23:03:32,790 PIL.Image    DEBUG    Importing DcxImagePlugin
+2020-05-18 23:03:32,790 PIL.Image    DEBUG    Importing DdsImagePlugin
+2020-05-18 23:03:32,791 PIL.Image    DEBUG    Importing EpsImagePlugin
+2020-05-18 23:03:32,792 PIL.Image    DEBUG    Importing FitsStubImagePlugin
+2020-05-18 23:03:32,793 PIL.Image    DEBUG    Importing FliImagePlugin
+2020-05-18 23:03:32,793 PIL.Image    DEBUG    Importing FpxImagePlugin
+2020-05-18 23:03:32,795 PIL.Image    DEBUG    Importing FtexImagePlugin
+2020-05-18 23:03:32,796 PIL.Image    DEBUG    Importing GbrImagePlugin
+2020-05-18 23:03:32,796 PIL.Image    DEBUG    Importing GifImagePlugin
+2020-05-18 23:03:32,796 PIL.Image    DEBUG    Importing GribStubImagePlugin
+2020-05-18 23:03:32,797 PIL.Image    DEBUG    Importing Hdf5StubImagePlugin
+2020-05-18 23:03:32,797 PIL.Image    DEBUG    Importing IcnsImagePlugin
+2020-05-18 23:03:32,798 PIL.Image    DEBUG    Importing IcoImagePlugin
+2020-05-18 23:03:32,798 PIL.Image    DEBUG    Importing ImImagePlugin
+2020-05-18 23:03:32,799 PIL.Image    DEBUG    Importing ImtImagePlugin
+2020-05-18 23:03:32,800 PIL.Image    DEBUG    Importing IptcImagePlugin
+2020-05-18 23:03:32,800 PIL.Image    DEBUG    Importing JpegImagePlugin
+2020-05-18 23:03:32,800 PIL.Image    DEBUG    Importing Jpeg2KImagePlugin
+2020-05-18 23:03:32,800 PIL.Image    DEBUG    Importing McIdasImagePlugin
+2020-05-18 23:03:32,800 PIL.Image    DEBUG    Importing MicImagePlugin
+2020-05-18 23:03:32,801 PIL.Image    DEBUG    Importing MpegImagePlugin
+2020-05-18 23:03:32,801 PIL.Image    DEBUG    Importing MpoImagePlugin
+2020-05-18 23:03:32,801 PIL.Image    DEBUG    Importing MspImagePlugin
+2020-05-18 23:03:32,802 PIL.Image    DEBUG    Importing PalmImagePlugin
+2020-05-18 23:03:32,804 PIL.Image    DEBUG    Importing PcdImagePlugin
+2020-05-18 23:03:32,805 PIL.Image    DEBUG    Importing PcxImagePlugin
+2020-05-18 23:03:32,806 PIL.Image    DEBUG    Importing PdfImagePlugin
+2020-05-18 23:03:32,816 PIL.Image    DEBUG    Importing PixarImagePlugin
+2020-05-18 23:03:32,816 PIL.Image    DEBUG    Importing PngImagePlugin
+2020-05-18 23:03:32,816 PIL.Image    DEBUG    Importing PpmImagePlugin
+2020-05-18 23:03:32,816 PIL.Image    DEBUG    Importing PsdImagePlugin
+2020-05-18 23:03:32,817 PIL.Image    DEBUG    Importing SgiImagePlugin
+2020-05-18 23:03:32,817 PIL.Image    DEBUG    Importing SpiderImagePlugin
+2020-05-18 23:03:32,819 PIL.Image    DEBUG    Importing SunImagePlugin
+2020-05-18 23:03:32,821 PIL.Image    DEBUG    Importing TgaImagePlugin
+2020-05-18 23:03:32,823 PIL.Image    DEBUG    Importing TiffImagePlugin
+2020-05-18 23:03:32,824 PIL.Image    DEBUG    Importing WebPImagePlugin
+2020-05-18 23:03:32,829 PIL.Image    DEBUG    Importing WmfImagePlugin
+2020-05-18 23:03:32,830 PIL.Image    DEBUG    Importing XbmImagePlugin
+2020-05-18 23:03:32,831 PIL.Image    DEBUG    Importing XpmImagePlugin
+2020-05-18 23:03:32,831 PIL.Image    DEBUG    Importing XVThumbImagePlugin
+2020-05-18 23:03:33,078 PIL.Image    DEBUG    Error closing: 'NoneType' object has no attribute 'close'
+2020-05-18 23:03:35,733 PIL.PngImagePlugin DEBUG    STREAM b'IHDR' 16 13
+2020-05-18 23:03:35,733 PIL.PngImagePlugin DEBUG    STREAM b'iCCP' 41 1008
+2020-05-18 23:03:35,733 PIL.PngImagePlugin DEBUG    iCCP profile name b'ICC Profile'
+2020-05-18 23:03:35,733 PIL.PngImagePlugin DEBUG    Compression method 0
+2020-05-18 23:03:35,733 PIL.PngImagePlugin DEBUG    STREAM b'pHYs' 1061 9
+2020-05-18 23:03:35,733 PIL.PngImagePlugin DEBUG    STREAM b'IDAT' 1082 8217
+2020-05-18 23:07:07,485 django.utils.autoreload INFO     /Volumes/Data/move_on/django/projects/myproject/myproject/permissions/image_process.py changed, reloading.
+2020-05-18 23:07:07,486 asyncio      DEBUG    Using selector: KqueueSelector
+2020-05-18 23:07:25,817 django.request ERROR    Internal Server Error: /books/17/process_images/
+Traceback (most recent call last):
+  File "/Volumes/Data/move_on/django/projects/myproject/venv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Volumes/Data/move_on/django/projects/myproject/venv/lib/python3.7/site-packages/django/core/handlers/base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Volumes/Data/move_on/django/projects/myproject/venv/lib/python3.7/site-packages/django/core/handlers/base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Volumes/Data/move_on/django/projects/myproject/myproject/permissions/views.py", line 80, in process_images
+    x = i_process(isbn, media_path)
+  File "/Volumes/Data/move_on/django/projects/myproject/myproject/permissions/image_process.py", line 17, in i_process
+    wpercent = (basewidth / float(im.size[0]))
+AttributeError: '_io.TextIOWrapper' object has no attribute 'size'
+2020-05-18 23:07:31,211 django.utils.autoreload INFO     /Volumes/Data/move_on/django/projects/myproject/myproject/permissions/image_process.py changed, reloading.
+2020-05-18 23:07:31,211 asyncio      DEBUG    Using selector: KqueueSelector
+2020-05-18 23:07:52,023 PIL.Image    DEBUG    Importing BlpImagePlugin
+2020-05-18 23:07:52,024 PIL.Image    DEBUG    Importing BmpImagePlugin
+2020-05-18 23:07:52,024 PIL.Image    DEBUG    Importing BufrStubImagePlugin
+2020-05-18 23:07:52,024 PIL.Image    DEBUG    Importing CurImagePlugin
+2020-05-18 23:07:52,025 PIL.Image    DEBUG    Importing DcxImagePlugin
+2020-05-18 23:07:52,026 PIL.Image    DEBUG    Importing DdsImagePlugin
+2020-05-18 23:07:52,027 PIL.Image    DEBUG    Importing EpsImagePlugin
+2020-05-18 23:07:52,028 PIL.Image    DEBUG    Importing FitsStubImagePlugin
+2020-05-18 23:07:52,029 PIL.Image    DEBUG    Importing FliImagePlugin
+2020-05-18 23:07:52,029 PIL.Image    DEBUG    Importing FpxImagePlugin
+2020-05-18 23:07:52,031 PIL.Image    DEBUG    Importing FtexImagePlugin
+2020-05-18 23:07:52,032 PIL.Image    DEBUG    Importing GbrImagePlugin
+2020-05-18 23:07:52,034 PIL.Image    DEBUG    Importing GifImagePlugin
+2020-05-18 23:07:52,035 PIL.Image    DEBUG    Importing GribStubImagePlugin
+2020-05-18 23:07:52,036 PIL.Image    DEBUG    Importing Hdf5StubImagePlugin
+2020-05-18 23:07:52,038 PIL.Image    DEBUG    Importing IcnsImagePlugin
+2020-05-18 23:07:52,042 PIL.Image    DEBUG    Importing IcoImagePlugin
+2020-05-18 23:07:52,046 PIL.Image    DEBUG    Importing ImImagePlugin
+2020-05-18 23:07:52,047 PIL.Image    DEBUG    Importing ImtImagePlugin
+2020-05-18 23:07:52,048 PIL.Image    DEBUG    Importing IptcImagePlugin
+2020-05-18 23:07:52,049 PIL.Image    DEBUG    Importing JpegImagePlugin
+2020-05-18 23:07:52,049 PIL.Image    DEBUG    Importing Jpeg2KImagePlugin
+2020-05-18 23:07:52,050 PIL.Image    DEBUG    Importing McIdasImagePlugin
+2020-05-18 23:07:52,050 PIL.Image    DEBUG    Importing MicImagePlugin
+2020-05-18 23:07:52,050 PIL.Image    DEBUG    Importing MpegImagePlugin
+2020-05-18 23:07:52,051 PIL.Image    DEBUG    Importing MpoImagePlugin
+2020-05-18 23:07:52,051 PIL.Image    DEBUG    Importing MspImagePlugin
+2020-05-18 23:07:52,052 PIL.Image    DEBUG    Importing PalmImagePlugin
+2020-05-18 23:07:52,052 PIL.Image    DEBUG    Importing PcdImagePlugin
+2020-05-18 23:07:52,053 PIL.Image    DEBUG    Importing PcxImagePlugin
+2020-05-18 23:07:52,053 PIL.Image    DEBUG    Importing PdfImagePlugin
+2020-05-18 23:07:52,062 PIL.Image    DEBUG    Importing PixarImagePlugin
+2020-05-18 23:07:52,063 PIL.Image    DEBUG    Importing PngImagePlugin
+2020-05-18 23:07:52,063 PIL.Image    DEBUG    Importing PpmImagePlugin
+2020-05-18 23:07:52,063 PIL.Image    DEBUG    Importing PsdImagePlugin
+2020-05-18 23:07:52,064 PIL.Image    DEBUG    Importing SgiImagePlugin
+2020-05-18 23:07:52,064 PIL.Image    DEBUG    Importing SpiderImagePlugin
+2020-05-18 23:07:52,065 PIL.Image    DEBUG    Importing SunImagePlugin
+2020-05-18 23:07:52,066 PIL.Image    DEBUG    Importing TgaImagePlugin
+2020-05-18 23:07:52,067 PIL.Image    DEBUG    Importing TiffImagePlugin
+2020-05-18 23:07:52,067 PIL.Image    DEBUG    Importing WebPImagePlugin
+2020-05-18 23:07:52,069 PIL.Image    DEBUG    Importing WmfImagePlugin
+2020-05-18 23:07:52,070 PIL.Image    DEBUG    Importing XbmImagePlugin
+2020-05-18 23:07:52,071 PIL.Image    DEBUG    Importing XpmImagePlugin
+2020-05-18 23:07:52,071 PIL.Image    DEBUG    Importing XVThumbImagePlugin
+2020-05-18 23:07:52,308 PIL.Image    DEBUG    Error closing: 'NoneType' object has no attribute 'close'
+2020-05-18 23:07:54,820 PIL.PngImagePlugin DEBUG    STREAM b'IHDR' 16 13
+2020-05-18 23:07:54,820 PIL.PngImagePlugin DEBUG    STREAM b'iCCP' 41 1008
+2020-05-18 23:07:54,820 PIL.PngImagePlugin DEBUG    iCCP profile name b'ICC Profile'
+2020-05-18 23:07:54,820 PIL.PngImagePlugin DEBUG    Compression method 0
+2020-05-18 23:07:54,820 PIL.PngImagePlugin DEBUG    STREAM b'pHYs' 1061 9
+2020-05-18 23:07:54,821 PIL.PngImagePlugin DEBUG    STREAM b'IDAT' 1082 8217
+2020-05-18 23:08:37,100 asyncio      DEBUG    Using selector: KqueueSelector
