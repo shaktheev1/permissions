@@ -25,14 +25,18 @@
 
     <table class="table table-bordered">
     <thead>
-     <th>Element Number</th><th>Followed Up Date(s)<br/>(YYYY-MM-DD)</th>
+     <th>Element Number</th><th>Date(s)<br/>(YYYY-MM-DD)</th>
     </thead>
     <tbody>
 
 {% for ems in ems_list %}
     {% for e in element%}
         {% if ems == e.pk %}
-                {% if e.get_followup_count > 0%}<tr><td>{{e.element_number}}</td><td>{{e.get_followup_date|join:", "}}</td>{% endif %}
+                {% if e.get_followup_count > 0%}
+                <tr><td>{{e.element_number}}</td><td>Followed Up on: {{e.get_followup_date|join:", "}}</td>
+                {% else %}
+                <tr><td>{{e.element_number}}</td><td>Requested on: {{e.requested_on}}</td>
+                {% endif %}
         {% endif %}
     {% endfor %}
 {% endfor %}

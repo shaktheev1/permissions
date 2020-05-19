@@ -16,16 +16,25 @@
 
 {% load humanize %}
 
-
+    {% if element.get_followup_count > 0%}
     <table class="table table-bordered">
     <thead>
      <th>Element Number</th><th>Followed Up Date(s)<br/>(YYYY-MM-DD)</th>
     </thead>
     <tbody>
-    {% if element.get_followup_count > 0%}<tr><td>{{element.element_number}}</td><td>{{element.get_followup_date|join:", "}}</td>{% endif %}
+    <tr><td>{{element.element_number}}</td><td>{{element.get_followup_date|join:", "}}</td>
     </tbody>
     </table>
-
+    {% else %}
+    <table class="table table-bordered">
+    <thead>
+     <th>Element Number</th><th>Permission Requsted Date<br/>(YYYY-MM-DD)</th>
+    </thead>
+    <tbody>
+    <tr><td>{{element.element_number}}</td><td>{{element.requested_on}}</td>
+    </tbody>
+    </table>
+    {% endif %}
 <p><b>Here is the copy of the original email:</b></p>
 
 <p>I am currently working on </p>

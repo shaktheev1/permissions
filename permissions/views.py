@@ -78,6 +78,8 @@ def process_images(request, pk):
     #cmd = '../myproject/manag.sh'
     #subprocess.call(cmd)
     x = i_process(isbn, media_path)
+    user = User.objects.first()
+    logger.info("ISBN: {}. Image process executed by {} at {}.".format(isbn, user, timezone.now()))
     #return HttpResponse("<html><body>{}</body></html>".format(x))
     return HttpResponse(x)
 
@@ -93,7 +95,7 @@ def process_data(request, pk):
         data = imported_data.export('df')
         x = import_data(isbn, data)
         user = User.objects.first()
-        logger.info("Imported by {}".format(user))
+        logger.info("ISBN: {}. Data imported by {} at {}.".format(isbn, user, timezone.now()))
     else:
         return render(request, 'import_books.html')
     return HttpResponse(x)
@@ -239,12 +241,15 @@ def element_followups(request, pk, pk1, fu):
     book = get_object_or_404(Book, pk=pk)
     unit = get_object_or_404(Unit, pk=pk1)
     element = get_object_or_404(Element, pk=fu)
+    user = User.objects.first()
+    logger.info("Followup for ISBN: {}, chapter {}, element {} done by {} at {}.".format(book.isbn, unit.chapter_number, element.element_number, user, timezone.now()))
     return render(request, 'followups.html', {'book':book, 'unit': unit, 'element': element})
 
 def new_followup(request, pk, pk1, fu):
     book = get_object_or_404(Book, pk=pk)
     unit = get_object_or_404(Unit, pk=pk1)
     element = get_object_or_404(Element, pk=fu)
+    user = User.objects.first()
     if request.method == 'POST':
         form = NewFollowupForm(request.POST)
         if form.is_valid():
@@ -255,6 +260,7 @@ def new_followup(request, pk, pk1, fu):
             followup.followedup_at = form.cleaned_data.get('followedup_at')
             followup.followedup_by = form.cleaned_data.get('followedup_by')
             followup.save()
+            logger.info("Followup for ISBN: {}, chapter {}, element {} done by {} at {}.".format(book.isbn, unit.chapter_number, element.element_number, user, timezone.now()))
             return redirect('element_followups', pk=book.pk, pk1=unit.pk, fu=element.pk)
     else:
         form = NewFollowupForm()
@@ -277,6 +283,7 @@ class BookUpdateView(UpdateView):
         book_e = form.save(commit=False)
         book_e.updated_by = self.request.user
         book_e.save()
+        logger.info("ISBN: {} - Book updated by {} at {}.".format(book_e.isbn, book_e.updated_by, timezone.now()))
         return redirect('home')
 
 @method_decorator(login_required, name='dispatch')
@@ -291,12 +298,15 @@ class UnitUpdateView(UpdateView):
         unit_e = form.save(commit=False)
         unit_e.updated_by = self.request.user
         unit_e.save()
+        logger.info("ISBN: {}, chapter {} updated by {} at {}.".format(unit_e.book.isbn, unit_e.chapter_number, unit_e.updated_by, timezone.now()))
         return redirect('book_units', pk=unit_e.book.pk)
 
 def delete_unit(request, pk, pk1):
     book = get_object_or_404(Book, pk=pk)
     unit = get_object_or_404(Unit, pk=pk1)
     unit.delete()
+    user = User.objects.first()
+    logger.info("ISBN: {}, chapter {} deleted by {} at {}.".format(book.isbn, unit.chapter_number, user, timezone.now()))
     return redirect('book_units', pk=pk)    
 
 def delete_element(request, pk, pk1, pk2):
@@ -304,6 +314,8 @@ def delete_element(request, pk, pk1, pk2):
     unit = get_object_or_404(Unit, pk=pk1)
     element = get_object_or_404(Element, pk=pk2)
     element.delete()
+    user = User.objects.first()
+    logger.info("ISBN: {}, chapter {}, element {} deleted by {} at {}.".format(book.isbn, unit.chapter_number, element.element_number, user, timezone.now()))
     return redirect('unit_elements', pk=pk, pk1=pk1)
 
 def delete_followup(request, pk, pk1, pk2, pk3):
@@ -312,6 +324,8 @@ def delete_followup(request, pk, pk1, pk2, pk3):
     element = get_object_or_404(Element, pk=pk2)
     followup = get_object_or_404(FollowUp, pk=pk3)
     followup.delete()
+    user = User.objects.first()
+    logger.info("ISBN: {}, chapter {}, element {}, followup dated {} deleted by {} at {}.".format(book.isbn, unit.chapter_number, element.element_number, followup.followedup_at, user, timezone.now()))
     return redirect('element_followups', pk=pk, pk1=pk1, fu=pk2)
 
 # class UnitDelete(DeleteView):
@@ -331,6 +345,7 @@ class ElementUpdateView(UpdateView):
         element_e = form.save(commit=False)
         element_e.updated_by = self.request.user
         element_e.save()
+        logger.info("ISBN: {}, chapter {}, element {} updated by {} at {}.".format(element_e.unit.book.isbn, element_e.unit.chapter_number, element_e.element_number, element_e.updated_by, timezone.now()))
         return redirect('unit_elements', pk=element_e.unit.book.pk, pk1=element_e.unit.pk)
 
 @method_decorator(login_required, name='dispatch')
@@ -345,6 +360,7 @@ class FollowUpUpdateView(UpdateView):
         followups = form.save(commit=False)
         followups.updated_by = self.request.user
         followups.save()
+        logger.info("Followup date updated to {} for ISBN: {}, chapter {}, element {} by {} at {}.".format(followups.followedup_at, followups.element.unit.book.isbn, followups.element.unit.chapter_number, followups.element.element_number, followups.updated_by, timezone.now()))
         return redirect('element_followups', pk=followups.element.unit.book.pk, pk1=followups.element.unit.pk, fu=followups.element.pk)
 
 
@@ -491,11 +507,14 @@ def email_agreement(request, pk, ems):
     email.attach("agreement_{}.pdf".format(pk), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     email.send()
+    user = User.objects.first()
+    
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
                 e.requested_on=timezone.now()
                 e.save()
+                logger.info("Email agreement sent for ISBN {}, chapter {}, element {} by user {} at {}".format(book.isbn, e.unit.chapter_number, e.element_number, user, timezone.now()))
     return render(request, 'done.html')
 
 
@@ -557,8 +576,8 @@ def update_followups(request, pk, ems):
         for e in element:
             if ems==e.pk:
                 e.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
-                
-    return render(request, 'update_followups.html', {'ems_list': ems_list})
+                logger.info("Followup date updated to {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, e.unit.chapter_number, e.element_number, user, timezone.now()))    
+    return render(request, 'update_followups.html', {'ems_list': ems_list, 'element': element})
 
 def update_granted(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
@@ -572,6 +591,7 @@ def update_granted(request, pk, ems):
                 e.granted_on=timezone.now()
                 e.updated_by=user
                 e.save()
+                logger.info("Permission granted for ISBN {}, elements {} by {} at {}".format(book.isbn, e.element_number, e.updated_by, timezone.now())) 
                 # element.create(granted_on=timezone.now(), updated_by=user)
     return render(request, 'update_granted.html', {'ems_list': ems_list})
 
@@ -667,6 +687,7 @@ def followup_email_agreement(request, pk, ems):
             if ems==e.pk:
                 e.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
                 e.save()
+                logger.info("Followup date updated to {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, e.unit.chapter_number, e.element_number, user, timezone.now()))  
     return render(request, 'done.html')
 
 def followup_email_agreement_e(request, pk, pk1, pk2):
@@ -689,9 +710,9 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     email.attach("agreement_{}.pdf".format(pk), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     email.send()
-    
     element.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
     element.save()
+    logger.info("Followup date updated to {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, unit.chapter_number, element.element_number, user, timezone.now()))  
     return render(request, 'done.html')
 
 def update_status_denied(request, pk, pk1, pk2):
@@ -703,6 +724,7 @@ def update_status_denied(request, pk, pk1, pk2):
     element.denied_on=timezone.now()
     element.updated_by=user
     element.save()
+    logger.info("Permission denied on {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, unit.chapter_number, element.element_number, user, timezone.now())) 
                 # element.create(granted_on=timezone.now(), updated_by=user)
     return render(request, 'update_status_denied.html', {'element': element})
 
@@ -716,6 +738,7 @@ def update_status_restore(request, pk, pk1, pk2):
     element.denied_on=timezone.now()
     element.updated_by=user
     element.save()
+    logger.info("Permission restored on {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, unit.chapter_number, element.element_number, user, timezone.now())) 
                 # element.create(granted_on=timezone.now(), updated_by=user)
     return render(request, 'update_status_restore.html', {'element': element})
 
