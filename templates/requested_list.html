@@ -30,7 +30,7 @@
         <b>Element Number:</b> {{e.element_number}}<br/>
             <b> Chapter Number:</b> {{e.unit.chapter_number}}<br/>
             <b> Caption:</b> {{e.caption}}<br/>
-            <b>{% if e.get_followup_count > 0%}First {% endif %} Permission requested: </b> {{e.requested_on|timesince}} ago  <a href="{% url 'followup_email_agreement_e' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">FOLLOWUP</a> <a href="{% url 'followup_agreement_e' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">FOLLOWUP AGREEMENT</a> <a href="{% url 'followup_email_body_e' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">FOLLOWUP EMAIL</a> <a href="{% url 'update_granted_e' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">GRANTED</a> <a href="{% url 'update_status_denied' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">DENIED</a><br/>
+            <b>{% if e.get_followup_count > 0%}First {% endif %} Permission requested: </b> {{e.requested_on|timesince}} ago  <a href="{% url 'test_followup_email_agreement_e' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">TEST</a> <a href="{% url 'followup_email_agreement_e' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">FOLLOWUP</a> <!--<a href="{% url 'followup_agreement_e' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">FOLLOWUP AGREEMENT</a> <a href="{% url 'followup_email_body_e' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">FOLLOWUP EMAIL</a>--> <a href="{% url 'update_granted_e' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">GRANTED</a> <a href="{% url 'update_status_denied' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">DENIED</a><br/>
             <b>Number of followups:</b> {{e.get_followup_count}}{% if e.get_followup_count > 0%} ({{e.get_followup_dates|join:", "}}) {% endif %}
             {% comment %} ({% for f in e.get_followup_dates %}
               {{f|join:" // "}}
@@ -43,14 +43,14 @@
     {% comment %} <a href="{% url 'update_followups' pk ems%}"
        class="btn btn-primary btn-sm"
        role="button">FOLLOWUP OLD</a> {% endcomment %}
+       <a href="{% url 'test_followup_email_agreement' pk ems%}"
+       class="btn btn-primary btn-sm"
+       role="button">TEST</a>
        <a href="{% url 'followup_email_agreement' pk ems%}"
        class="btn btn-primary btn-sm"
        role="button">FOLLOWUP</a>
-       <a href="{% url 'followup_agreement' pk ems%}"
-       class="btn btn-primary btn-sm"
-       role="button">FOLLOWUP AGREEMENT PREVIEW</a> <a href="{% url 'followup_email_body' pk ems%}"
-       class="btn btn-primary btn-sm"
-       role="button">FOLLOWUP EMAIL PREVIEW</a> <a href="{% url 'update_granted' pk ems%}"
+       {% comment %} <a href="{% url 'followup_agreement' pk ems%}" class="btn btn-primary btn-sm" role="button">FOLLOWUP AGREEMENT PREVIEW</a> <a href="{% url 'followup_email_body' pk ems%}" class="btn btn-primary btn-sm" role="button">FOLLOWUP EMAIL PREVIEW</a> {% endcomment %}
+       <a href="{% url 'update_granted' pk ems%}"
        class="btn btn-primary btn-sm"
        role="button">GRANTED</a></p></td></tr>  
 {% endfor %} 

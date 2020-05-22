@@ -41,11 +41,15 @@
         {%endif%}
         {% endfor %}
     {% endfor %}
-    <p><a href="{% url 'generate_agreement' pk ems%}"
+    <p>
+    {% comment %} <a href="{% url 'generate_agreement' pk ems%}"
        class="btn btn-primary btn-sm"
-       role="button">AGREEMENT</a> <a href="{% url 'email_body' pk ems%}"
+       role="button">AGREEMENT</a>  <a href="{% url 'email_body' pk ems%}"
        class="btn btn-primary btn-sm"
-       role="button">PREVIEW</a> <a href="{% url 'email_agreement' pk ems%}"
+       role="button">PREVIEW</a> {% endcomment %}
+       <a href="{% url 'test_email_agreement' pk ems%}"
+       class="btn btn-primary btn-sm"
+       role="button">TEST</a> <a href="{% url 'email_agreement' pk ems%}"
        class="btn btn-primary btn-sm"
        role="button">SEND</a></p></td></tr>  
 {% endfor %} 

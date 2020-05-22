@@ -36,7 +36,7 @@
     {% for e in element%}
         {% if ems == e.pk %}
                 <li><p></p>
-                    <p><b>JBL ID:</b> {{e.file_name}}<br/>
+                    <p><b>JBL ID:</b> {{e.file_name}} ({{e.element_type}})<br/>
                     <b>Description:</b> {{e.caption}}<br/>
                     <b>Credit:</b> {{e.credit_line}}</p>
                 </li>
@@ -59,8 +59,8 @@
     {% for e in element%}
         {% if ems == e.pk %}
             <div style="page-break-inside: avoid">
-            <p><b>{{e.file_name}}</b></p>
-            <p><img src="../media/documents/9781284196290/resized/{{e.unit.book.isbn}}_{{e.unit.chapter_number}}_{{e.element_number}}.jpg"/></p>
+            <p><b>{{e.unit.book.isbn}}_CH{{e.unit.chapter_number}}_{{e.shortform}}{{e.element_number}} ({{e.element_type}})</b></p>
+            <p><img src="../media/documents/{{e.unit.book.isbn}}/resized/{{e.unit.book.isbn}}_CH{{e.unit.chapter_number}}_{{e.shortform}}{{e.element_number}}.jpg"/></p>
             </div>
         {% endif %}
     {% endfor %}    

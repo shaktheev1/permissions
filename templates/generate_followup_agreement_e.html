@@ -29,7 +29,7 @@
 <p>Jones & Bartlett Learning.</p>
 
 <p><b>CONTENT BEING REQUESTED:</b></p>
-                    <p><b>JBL ID:</b> {{element.file_name}}<br/>
+                    <p><b>JBL ID:</b> {{element.file_name}} ({{element.element_type}})<br/>
                     <b>Element Number:</b> {{element.element_number}}<br/>
                     <b>Description:</b> {{element.caption}}<br/>
                     <b>Credit:</b> {{element.credit_line}}</p>
@@ -45,8 +45,8 @@
 <p><b>Selection Material:</b></p>
 
             <div style="page-break-inside: avoid">
-            <p><b>{{element.file_name}}</b></p>
-            <p><img src="../media/documents/9781284196290/resized/{{element.unit.book.isbn}}_{{element.unit.chapter_number}}_{{element.element_number}}.jpg"/></p>
+            <p><b>{{element.unit.book.isbn}}_CH{{element.unit.chapter_number}}_{{element.shortform}}{{element.element_number}} ({{element.element_type}})</b></p>
+            <p><img src="../media/documents/{{element.unit.book.isbn}}/resized/{{element.unit.book.isbn}}_CH{{element.unit.chapter_number}}_{{element.shortform}}{{element.element_number}}.jpg"/></p>
             </div>
 
 </body>

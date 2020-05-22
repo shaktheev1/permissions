@@ -32,6 +32,8 @@ SPECIFIED_CHOICES = [
         ('Revised', 'REVISED'),
     ]
 
+
+
 # def isbn_validator(value):
 #     if len(value) < 13:
 #         raise ValidationError("{} is invalid, must be 13 characters". format(value))
@@ -69,18 +71,36 @@ class Unit(models.Model):
 
     def __str__(self):
         return self.chapter_number
-       
+
+
 class Element(models.Model):
+
+    Cover = 'CVR'
+    Photo = 'FIG'
+    Art = 'FIG'
+    Table = 'TAB'
+
+    ELEMENT_TYPE = [ 
+        ('Cover', 'Cover'),
+        ('Photo', 'Photo'),
+        ('Art', 'Art'),
+        ('Text', 'Text'),
+        ('CaseStudy', 'CaseStudy'),
+        ('Combo', 'Combo'),
+        ('Fig', 'Screenshot'),
+        ('Table', 'Table'),
+    ]
     unit = models.ForeignKey(Unit, null=True, related_name='elements', on_delete=models.CASCADE)
     element_number = models.CharField(max_length=30)
     # specified_as = models.CharField(max_length=25, choices=SPECIFIED_CHOICES, blank=True)
     caption = models.TextField(max_length=300, null=True, blank=True)
+    element_type = models.CharField(max_length=25, choices=ELEMENT_TYPE, blank=True)
     source = models.CharField(max_length=200, null=True, blank=True)
     credit_line = models.TextField(max_length=300, null=True, blank=True)
     # status = models.CharField(max_length=25, choices=STATUS_CHOICES, blank=True)
     source_link = models.CharField(max_length=150, null=True, blank=True)
     title = models.CharField(max_length=200, null=True, blank=True)
-    rh_email = models.EmailField(null=True)
+    rh_email = models.CharField(max_length=200, null=True)
     alt_email = models.EmailField(null=True, blank=True)
     rh_address = models.TextField(max_length=300, null=True, blank=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
@@ -120,6 +140,25 @@ class Element(models.Model):
         followup_date = FollowUp.objects.filter(element=self).order_by('followedup_at')
         f_dates = followup_date
         return f_dates
+
+    def shortform(self):
+        if self.element_type == 'Photo':
+            shortform = 'FIG'
+        elif self.element_type == 'Art':
+            shortform = 'FIG'
+        elif self.element_type == 'Table':
+            shortform = 'TAB'
+        elif self.element_type == 'CaseStudy':
+            shortform = 'FTR'
+        elif self.element_type == 'Text':
+            shortform = 'FTR'
+        elif self.element_type == 'Combo':
+            shortform = 'FIG'
+        elif self.element_type == 'Cover':
+            shortform = 'FIG'
+        else:
+            shortform = 'None'
+        return shortform
 
 class FollowUp(models.Model):
     element = models.ForeignKey(Element, null=True, related_name='follow_up', on_delete=models.CASCADE)

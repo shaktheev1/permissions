@@ -70,7 +70,7 @@ I have attached a copy of the permission request for you, which contains more in
     {% for e in element%}
         {% if ems == e.pk %}
                 <li>
-                    <p><b>JBL ID:</b> {{e.file_name}}<br/>
+                    <p><b>JBL ID:</b> {{e.file_name}}  ({{e.element_type}})<br/>
                     <b>Description:</b> {{e.caption}}<br/>
                     <b>Credit Line:</b> {{e.credit_line}}<br/>
                     <b>Source:</b> {{e.source}}</p>

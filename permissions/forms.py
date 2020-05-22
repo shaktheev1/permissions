@@ -17,7 +17,7 @@ class NewElementForm(forms.ModelForm):
     class Meta:
         model = Element
         #fields = '__all__'
-        exclude = ('unit','granted_on','created_by','updated_by','updated_at','permission_status','denied_on')
+        exclude = ('unit','requested_on','granted_on','created_by','updated_by','updated_at','permission_status','denied_on')
         #fields = ['element_number', 'requested_on', 'granted_on', 'status']
 
 class NewFollowupForm(forms.ModelForm):
