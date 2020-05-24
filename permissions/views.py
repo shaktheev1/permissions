@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from .models import Book, Unit, Element, FollowUp
 from django.views.generic import DetailView, UpdateView, FormView, ListView, CreateView, DeleteView
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from .resources import BookResource, UnitResource, ElementResource
 from tablib import Dataset
 from collections import defaultdict
@@ -77,38 +77,50 @@ def process_images(request, pk):
     media_path = settings.MEDIA_ROOT
     #cmd = '../myproject/manag.sh'
     #subprocess.call(cmd)
-    x = i_process(isbn, media_path)
+    result = i_process(isbn, media_path)
     user = request.user.username
     logger.info("ISBN: {}. Image process executed by {} at {}.".format(isbn, user, timezone.now()))
     #return HttpResponse("<html><body>{}</body></html>".format(x))
-    return HttpResponse(x)
+    return render(request, 'processed_images.html', {'result': result, 'book': book})
 
 def process_data(request, pk):
+    book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
         book_resource = BookResource()
         dataset = Dataset()
-        new_book = request.FILES['myfile']
+        new_book = request.FILES.get('myfile', False)
+        if new_book == False:
+            return render(request, 'import_books.html')
         imported_data = dataset.load(new_book.read())
-        book = get_object_or_404(Book, pk=pk)
         isbn = book.isbn
         media_path = settings.MEDIA_ROOT
         data = imported_data.export('df')
-        x = import_data(isbn, data)
+        result = import_data(isbn, data)
         user = request.user.username
         logger.info("ISBN: {}. Data imported by {} at {}.".format(isbn, user, timezone.now()))
     else:
         return render(request, 'import_books.html')
-    return HttpResponse(x)
+    return render(request, 'import_status.html', {'book': book, 'result': result})
     
 @method_decorator(login_required, name='dispatch')
 class BookListView(ListView):
     model = Book
     context_object_name = 'books'
-    paginate_by = 5
+    paginate_by = 8
     template_name = 'home.html'
     
     def get_queryset(self):
-        queryset = Book.objects.all().order_by('-created_at')
+        queryset = Book.objects.filter(active=True).order_by('-created_at')
+        return queryset
+
+class BookListInactiveView(ListView):
+    model = Book
+    context_object_name = 'books'
+    paginate_by = 8
+    template_name = 'home_inactive.html'
+    
+    def get_queryset(self):
+        queryset = Book.objects.filter(active=False).order_by('-created_at')
         return queryset
 
 @method_decorator(login_required, name='dispatch')
@@ -143,7 +155,7 @@ class NewBookView(CreateView):
 class UnitsListView(ListView):
     model = Unit
     context_object_name = 'units'
-    paginate_by = 4
+    paginate_by = 10
     template_name = 'units.html'
 
     def get_context_data(self, **kwargs):
@@ -169,7 +181,7 @@ def new_unit(request, pk):
             unit.book = book
             unit.chapter_number = form.cleaned_data.get('chapter_number')
             unit.chapter_title = form.cleaned_data.get('chapter_title')
-            unit.active = form.cleaned_data.get('active')
+            # unit.active = form.cleaned_data.get('active')
             unit.save()
             return redirect('book_units', pk=book.pk)
     else:
@@ -180,7 +192,7 @@ def new_unit(request, pk):
 class ElementsListView(ListView):
     model = Element
     context_object_name = 'elements'
-    paginate_by = 4
+    paginate_by = 10
     template_name = 'elements.html'
 
     def get_context_data(self, **kwargs):
@@ -291,7 +303,7 @@ class BookUpdateView(UpdateView):
 @method_decorator(login_required, name='dispatch')
 class UnitUpdateView(UpdateView):
     model = Unit
-    fields = ('chapter_number', 'chapter_title', 'active')
+    fields = ('chapter_number', 'chapter_title')
     template_name = 'edit_unit.html'
     pk_url_kwarg = 'unit_pk'
     context_object_name = 'unit_e'
@@ -302,6 +314,24 @@ class UnitUpdateView(UpdateView):
         unit_e.save()
         logger.info("ISBN: {}, chapter {} updated by {} at {}.".format(unit_e.book.isbn, unit_e.chapter_number, unit_e.updated_by, timezone.now()))
         return redirect('book_units', pk=unit_e.book.pk)
+
+def deactivate_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    book.active = False
+    book.save()
+    user = request.user.username
+    logger.info("ISBN: {} deactivated by {} at {}.".format(book.isbn, user, timezone.now()))
+    print(request.path_info)
+    return redirect('home')
+    # return HttpResponseRedirect(request.path_info)
+
+def activate_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    book.active = True
+    book.save()
+    user = request.user.username
+    logger.info("ISBN: {} activated by {} at {}.".format(book.isbn, user, timezone.now()))
+    return redirect('home_inactive')
 
 def delete_unit(request, pk, pk1):
     book = get_object_or_404(Book, pk=pk)
@@ -338,7 +368,8 @@ def delete_followup(request, pk, pk1, pk2, pk3):
 @method_decorator(login_required, name='dispatch')
 class ElementUpdateView(UpdateView):
     model = Element
-    fields = '__all__'
+    # fields = '__all__'
+    fields = ('unit', 'element_number', 'caption', 'element_type', 'source', 'credit_line', 'source_link', 'title', 'rh_email', 'alt_email', 'rh_address', 'phone', 'fax', 'insert_1', 'jbl_rh_name', 'requested_on', 'granted_on', 'permission_status', 'denied_on')
     template_name = 'edit_element.html'
     pk_url_kwarg = 'element_pk'
     context_object_name = 'element_e'
@@ -349,6 +380,7 @@ class ElementUpdateView(UpdateView):
         element_e.save()
         logger.info("ISBN: {}, chapter {}, element {} updated by {} at {}.".format(element_e.unit.book.isbn, element_e.unit.chapter_number, element_e.element_number, element_e.updated_by, timezone.now()))
         return redirect('unit_elements', pk=element_e.unit.book.pk, pk1=element_e.unit.pk)
+    
 
 @method_decorator(login_required, name='dispatch')
 class FollowUpUpdateView(UpdateView):
@@ -506,10 +538,8 @@ def email_agreement(request, pk, ems):
 
     e_list = email_rh.split (",")
     rh_name.replace(" ", "_")
-    message = render_to_string("emailbody.html", {'ems_list': ems_list, 'element': element})
-
-    # email = EmailMessage(subject, message, 's4permission@gmail.com', ['shaktheev@gmail.com'])
-    # email = EmailMessage(subject, message, 's4permission@gmail.com', ['MuthukumarS@s4carlisle.com', 'shaktheev@gmail.com', 'ShaliniB@s4carlisle.com', 'mahalakshmig@s4carlisle.com'])
+    user_data = User.objects.get(username=request.user.username)
+    message = render_to_string("emailbody.html", {'ems_list': ems_list, 'element': element, 'user': user_data})
    
     email = EmailMessage(subject, message, 's4permission@gmail.com', e_list)
 
@@ -529,7 +559,7 @@ def email_agreement(request, pk, ems):
                 e.requested_on=timezone.now()
                 e.save()
                 logger.info("Email agreement sent for ISBN {}, chapter {}, element {} by user {} at {}".format(book.isbn, e.unit.chapter_number, e.element_number, user, timezone.now()))
-    return render(request, 'done.html')
+    return render(request, 'email_agreement_status.html', {'book': book, 'user': e_list})
 
 
 def test_email_agreement(request, pk, ems):
@@ -542,8 +572,8 @@ def test_email_agreement(request, pk, ems):
             if ems==e.pk:
                 jbl_rh_name = e.jbl_rh_name
     rh_name = jbl_rh_name.replace(" ", "_")
-
-    message = render_to_string("emailbody.html", {'ems_list': ems_list, 'element': element})
+    user_data = User.objects.get(username=request.user.username)
+    message = render_to_string("emailbody.html", {'ems_list': ems_list, 'element': element, 'user': user_data})
 
     email = EmailMessage(subject, message, 's4permission@gmail.com', [request.user.email])
     
@@ -554,15 +584,15 @@ def test_email_agreement(request, pk, ems):
     response = HttpResponse(content_type="application/pdf")
     email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
-    email.send()
-    
-    return render(request, 'done.html')
+    result = email.send()
+    return render(request, 'test_email_agreement_status.html', {'book': book, 'user': user_data})
 
 def email_body(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
     book = get_object_or_404(Book, pk=pk)
     ems_list = json.loads(ems)
-    return render(request, 'emailbody.html', {'ems_list': ems_list, 'element': element})
+    user_data = User.objects.get(username=request.user.username)
+    return render(request, 'emailbody.html', {'ems_list': ems_list, 'element': element, 'user': user_data})
 
 def requested_list(request, pk):
     book = get_object_or_404(Book, pk=pk)
@@ -633,7 +663,7 @@ def update_granted(request, pk, ems):
                 e.save()
                 logger.info("Permission granted for ISBN {}, elements {} by {} at {}".format(book.isbn, e.element_number, e.updated_by, timezone.now())) 
                 # element.create(granted_on=timezone.now(), updated_by=user)
-    return render(request, 'update_granted.html', {'ems_list': ems_list})
+    return render(request, 'update_granted.html', {'ems_list': ems_list, 'book': book, 'element': element})
 
 def update_granted_e(request, pk, pk1, pk2):
     book = get_object_or_404(Book, pk=pk)
@@ -644,7 +674,7 @@ def update_granted_e(request, pk, pk1, pk2):
     element.updated_by=user
     element.save()
                 # element.create(granted_on=timezone.now(), updated_by=user)
-    return render(request, 'update_granted_e.html', {'element': element})
+    return render(request, 'update_granted_e.html', {'book': book, 'element': element})
 
 def followup_agreement(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
@@ -684,15 +714,16 @@ def followup_email_body(request, pk, ems):
             if ems==e.pk:
                 dates[e.element_number].append(e.follow_up.all().order_by('followedup_at'))
                 #dates=e.follow_up.all()
-    dates.default_factory = None                
-    return render(request, 'emailbody_followup.html', {'ems_list': ems_list, 'element': element, 'dates': dates})
+    dates.default_factory = None
+    user_data = User.objects.get(username=request.user.username)                
+    return render(request, 'emailbody_followup.html', {'ems_list': ems_list, 'element': element, 'user': user_data, 'dates': dates})
 
 def followup_email_body_e(request, pk, pk1, pk2):
     book = get_object_or_404(Book, pk=pk)
     unit = get_object_or_404(Unit, pk=pk1)
     element = get_object_or_404(Element, pk=pk2)
-    user = User.objects.get(username=request.user.username)
-    return render(request, 'emailbody_followup_e.html', {'element': element})
+    user_data = User.objects.get(username=request.user.username)
+    return render(request, 'emailbody_followup_e.html', {'element': element, 'user': user_data})
 
 
 def followup_email_agreement(request, pk, ems):
@@ -711,12 +742,12 @@ def followup_email_agreement(request, pk, ems):
                 #dates=e.follow_up.all()
 
     e_list = email_rh.split (",")            
-    dates.default_factory = None  
+    dates.default_factory = None
+    user_data = User.objects.get(username=request.user.username)  
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
-    message = render_to_string("emailbody_followup.html", {'ems_list': ems_list, 'element': element, 'dates': dates})
+    message = render_to_string("emailbody_followup.html", {'ems_list': ems_list, 'element': element, 'user': user_data, 'dates': dates})
 
     email = EmailMessage(subject, message, 's4permission@gmail.com', e_list)
-    # email = EmailMessage(subject, message, 's4permission@gmail.com', ['MuthukumarS@s4carlisle.com', 'shaktheev@gmail.com', 'ShaliniB@s4carlisle.com', 'mahalakshmig@s4carlisle.com'])
 
     html = render_to_string("generate_followup_agreement.html", {'ems_list': ems_list, 'element': element})
     out = BytesIO()
@@ -734,7 +765,7 @@ def followup_email_agreement(request, pk, ems):
                 e.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
                 e.save()
                 logger.info("Followup date updated to {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, e.unit.chapter_number, e.element_number, user, timezone.now()))  
-    return render(request, 'done.html')
+    return render(request, 'followup_email_agreement_status.html', {'book': book, 'user': e_list})
 
 def test_followup_email_agreement(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
@@ -742,8 +773,9 @@ def test_followup_email_agreement(request, pk, ems):
     ems_list = json.loads(ems)
 
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
-    message = render_to_string("emailbody_followup.html", {'ems_list': ems_list, 'element': element})
-
+    user_data = User.objects.get(username=request.user.username)
+    message = render_to_string("emailbody_followup.html", {'ems_list': ems_list, 'element': element, 'user': user_data})
+    
     email = EmailMessage(subject, message, 's4permission@gmail.com', [request.user.email])
 
     for ems in ems_list:
@@ -751,7 +783,7 @@ def test_followup_email_agreement(request, pk, ems):
             if ems==e.pk:
                 jbl_rh_name = e.jbl_rh_name
     rh_name = jbl_rh_name.replace(" ", "_")
-
+    
     html = render_to_string("generate_followup_agreement.html", {'ems_list': ems_list, 'element': element})
     out = BytesIO()
     stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
@@ -760,7 +792,7 @@ def test_followup_email_agreement(request, pk, ems):
     email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     email.send()  
-    return render(request, 'done.html')
+    return render(request, 'test_followup_email_agreement_status.html', {'book': book, 'user': user_data})
 
 def followup_email_agreement_e(request, pk, pk1, pk2):
     book = get_object_or_404(Book, pk=pk)
@@ -776,7 +808,8 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     email_rh = element.rh_email
     e_list = email_rh.split (",")
 
-    message = render_to_string("emailbody_followup_e.html", {'element': element})
+    user_data = User.objects.get(username=request.user.username)
+    message = render_to_string("emailbody_followup_e.html", {'element': element, 'user': user_data})
 
     email = EmailMessage(subject, message, 's4permission@gmail.com', e_list)
    
@@ -792,7 +825,7 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     element.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
     element.save()
     logger.info("Followup date updated to {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, unit.chapter_number, element.element_number, user, timezone.now()))  
-    return render(request, 'done.html')
+    return render(request, 'followup_email_agreement_status.html', {'book': book, 'user': e_list})
 
 def test_followup_email_agreement_e(request, pk, pk1, pk2):
     book = get_object_or_404(Book, pk=pk)
@@ -800,8 +833,8 @@ def test_followup_email_agreement_e(request, pk, pk1, pk2):
     element = get_object_or_404(Element, pk=pk2)
 
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
-
-    message = render_to_string("emailbody_followup_e.html", {'element': element})
+    user_data = User.objects.get(username=request.user.username)
+    message = render_to_string("emailbody_followup_e.html", {'element': element, 'user': user_data})
 
     email = EmailMessage(subject, message, 's4permission@gmail.com', [request.user.email])
 
@@ -816,7 +849,7 @@ def test_followup_email_agreement_e(request, pk, pk1, pk2):
     email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     email.send()  
-    return render(request, 'done.html')
+    return render(request, 'test_followup_email_agreement_status.html', {'book': book, 'user': user_data})
 
 def update_status_denied(request, pk, pk1, pk2):
     book = get_object_or_404(Book, pk=pk)
@@ -829,7 +862,7 @@ def update_status_denied(request, pk, pk1, pk2):
     element.save()
     logger.info("Permission denied on {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, unit.chapter_number, element.element_number, user, timezone.now())) 
                 # element.create(granted_on=timezone.now(), updated_by=user)
-    return render(request, 'update_status_denied.html', {'element': element})
+    return render(request, 'update_status_denied.html', {'book':book, 'element': element})
 
 
 def update_status_restore(request, pk, pk1, pk2):
@@ -838,12 +871,12 @@ def update_status_restore(request, pk, pk1, pk2):
     element = get_object_or_404(Element, pk=pk2)
     user = User.objects.get(username=request.user.username)
     element.permission_status=True
-    element.denied_on=timezone.now()
+    element.denied_on=None
     element.updated_by=user
     element.save()
     logger.info("Permission restored on {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, unit.chapter_number, element.element_number, user, timezone.now())) 
                 # element.create(granted_on=timezone.now(), updated_by=user)
-    return render(request, 'update_status_restore.html', {'element': element})
+    return render(request, 'update_status_restore.html', {'book': book, 'element': element})
 
 def denied_list(request, pk):
     book = get_object_or_404(Book, pk=pk)

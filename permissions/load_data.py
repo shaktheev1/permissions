@@ -49,7 +49,7 @@ def import_data(isbn, data):
                 element.save()
             else:
                 return("Elements already exist...")
-    return("Done")
+    return("Successfully imported!")
 
 if __name__ == '__main__':
     try:

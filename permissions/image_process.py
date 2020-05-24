@@ -24,9 +24,9 @@ def i_process(isbn, media_path):
                 out.save(outfile, "JPEG")
             # do something
         # return something
-        return isbn
+        return "Images processed successfully for ISBN {}".format(isbn)
     else:
-        return "Images are not available for this ISBN: {} inside documents folder. Please make sure to run PROCESS IMAGES script.".format(isbn)
+        return "Images are not available for ISBN {} inside documents folder.".format(isbn)
 
 if __name__ == '__main__':
     try:

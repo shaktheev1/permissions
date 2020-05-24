@@ -6,12 +6,17 @@
 {% block content %}
 <div class="mb-4">
     <a href="{% url 'new_book' %}" class="btn btn-primary btn-sm">NEW BOOK</a>
+    <a href="{% url 'home_inactive' %}" class="btn btn-primary btn-sm">INACTIVE TITLES</a>
     <!-- <a href="{% url 'import_book' %}" class="btn btn-primary btn-sm">IMPORT BOOK</a>
     <a href="{% url 'export_books' %}" class="btn btn-primary btn-sm">EXPORT BOOK DETAILS</a> -->
 </div>
 
-<table class="table table-striped mb-4">
-    <thead class="thead-inverse">
+
+        {%if books.count == 0 %}
+             <p>No books on the portal yet!</p>
+        {% else %}
+        <table class="table table-striped mb-4">
+        <thead class="thead-inverse">
         <tr>
         <th>BOOK</th>
         <th>CHAPTERS</th>
@@ -19,13 +24,11 @@
         <!-- <th>CREATED ON</th> -->
         <th>REQUESTED</th>
         <th>GRANTED</th>
+        <th>DENIED</th>
         <!-- <th>EXPORT AS</th> -->
         </tr>
-    </thead>
-    <tbody>
-        {%if books.count == 0 %}
-             <p>No books on the portal yet!</p>
-        {% else %}
+        </thead>
+        <tbody>
         {% for book in books %}
             <tr>
                 <td>
@@ -33,18 +36,20 @@
                     <small class="text-muted d-block">{{ book.isbn }}</small>
                     <small class="text-muted d-block">{{ book.publisher.publisher_name }}</small>
                 </td>
-                <td class="align-middle">{{book.get_chapters_count}}</td>
+                <td class="align-middle"><a href="{% url 'book_units' book.pk %}">{{book.get_chapters_count}}</a></td>
                 <td class="align-middle">{{book.get_elements_count}}</td>
                 <!-- <td class="align-middle">{{book.created_at|naturalday}}</td> -->
-                <td class="align-middle">{{book.get_requested_count}}</td>
-                <td class="align-middle">{{book.get_granted_count}}</td>
+                <td class="align-middle"><a href="{% url 'requested_list' book.pk %}">{{book.get_requested_count}}</a></td>
+                <td class="align-middle"><a href="{% url 'granted_list' book.pk %}">{{book.get_granted_count}}</a></td>
+                <td class="align-middle"><a href="{% url 'denied_list' book.pk %}">{{book.get_denied_count}}</a></td>
                 <!-- <td class="align-middle"><a href="{% url 'export_book' book.pk %}" class="btn btn-primary btn-sm">XLSX</a></td> -->
                 <td class="align-middle"><a href="{% url 'edit_book' book.pk %}" class="btn btn-primary btn-sm" role="button">UPDATE</a></td>
+                <td class="align-middle"><a href="{% url 'deactivate_book' book.pk %}" class="btn btn-primary btn-sm" role="button">DEACTIVATE</a></td>
             </tr>
         {% endfor %}
+            </tbody>
+        </table>
         {% endif %}
-    </tbody>
-</table>
 
 {% include 'includes/pagination.html' %}
 

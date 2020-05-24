@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
-{%block title%}Import a new Book{% endblock %}
+
+{% block title %}
+  {{ book.title }} - {{block.super}}
+{% endblock %}
+
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'home'%}">Books</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'book_units' book.pk%}">{{ book.title }}</a></li>
   <li class="breadcrumb-item active">Import Data</li>
 {% endblock %}
+
 {% block content %}
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="myfile">
-    <button type="submit">Upload</button>
-  </form>
+{{result}}
 {% endblock %}

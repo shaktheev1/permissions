@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator, MinLengthValidator
 from datetime import datetime
 from publisher.models import Publisher
+from django.utils import timezone
 
 STATUS_CHOICES = [ 
         ('Filled', 'FILLED'),
@@ -40,7 +41,7 @@ SPECIFIED_CHOICES = [
 #     return value
 
 class Book(models.Model):
-    publisher = models.ForeignKey(Publisher, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
+    publisher = models.ForeignKey(Publisher, null=True, blank=True, related_name='publisher', on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank=True)
     isbn = models.CharField(max_length=13, unique=True, validators=[MinLengthValidator(13)])
     edition = models.CharField(max_length=10, blank=True)
@@ -61,6 +62,9 @@ class Book(models.Model):
 
     def get_granted_count(self):
         return Element.objects.filter(~Q(granted_on = None), unit__book=self).count()
+    
+    def get_denied_count(self):
+        return Element.objects.filter(~Q(denied_on = None), unit__book=self).count()
 
 
 class Unit(models.Model):
@@ -71,6 +75,9 @@ class Unit(models.Model):
 
     def __str__(self):
         return self.chapter_number
+    
+    def get_element_count(self):
+        return Element.objects.filter(unit=self).count()    
 
 
 class Element(models.Model):
@@ -109,15 +116,42 @@ class Element(models.Model):
     jbl_rh_name = models.CharField(max_length=75, null=True, blank=True)
     file_location = models.CharField(max_length=200, null=True, blank=True)
     file_name = models.CharField(max_length=80, null=True, blank=True)
-    requested_on = models.DateField(null=True, blank=True)
+    requested_on = models.DateTimeField(null=True, blank=True)
     granted_on = models.DateTimeField(null=True, blank=True)
     permission_status = models.BooleanField(default=True)
     denied_on = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(User, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
     updated_by = models.ForeignKey(User, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
+    
+    def clean(self):
+        super().clean()
+        if not(self.requested_on==None):
+            if not(self.unit.book.created_at <= self.requested_on):
+                raise ValidationError('Requested date is less than book created date.')
+            if not(self.granted_on==None):
+                if (self.granted_on < self.requested_on):
+                    raise ValidationError('Granted date should be greater than or equal to requested date.')
+                if (self.granted_on > timezone.now()):
+                    raise ValidationError('Granted date should be less than or equal to current date.')
+            if not(self.denied_on==None):
+                if (self.denied_on < self.requested_on):
+                    raise ValidationError('Denied date should be greater than or equal to requested date.')
+                if (self.denied_on > timezone.now()):
+                    raise ValidationError('Denied date should be less than or equal to current date.')
+        if not(self.granted_on==None):
+                if self.requested_on==None:
+                    raise ValidationError('Requested date is missing for granted date.')
+                if not(self.denied_on==None):
+                    raise ValidationError('Denied date is not empty for granted date.')
+        if not(self.denied_on==None):
+                if self.requested_on==None:
+                    raise ValidationError('Requested date is missing for denied date.')
+                if not(self.granted_on==None):
+                    raise ValidationError('Granted date is not empty for denied date.')
+                                
 
     def __str__(self):
         return self.element_number
@@ -162,8 +196,13 @@ class Element(models.Model):
 
 class FollowUp(models.Model):
     element = models.ForeignKey(Element, null=True, related_name='follow_up', on_delete=models.CASCADE)
-    followedup_at = models.DateField(null=True)
+    followedup_at = models.DateTimeField(null=True)
     followedup_by = models.ForeignKey(User, null=True, blank=True, related_name="+", on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.followedup_at)
+
+    def clean(self):
+        super().clean()
+        if (self.followedup_at > timezone.now()):
+            raise ValidationError('Followup date should be less than current date.')
