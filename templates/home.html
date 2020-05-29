@@ -43,8 +43,8 @@
                 <td class="align-middle"><a href="{% url 'granted_list' book.pk %}">{{book.get_granted_count}}</a></td>
                 <td class="align-middle"><a href="{% url 'denied_list' book.pk %}">{{book.get_denied_count}}</a></td>
                 <!-- <td class="align-middle"><a href="{% url 'export_book' book.pk %}" class="btn btn-primary btn-sm">XLSX</a></td> -->
-                <td class="align-middle"><a href="{% url 'edit_book' book.pk %}" class="btn btn-primary btn-sm" role="button">UPDATE</a></td>
-                <td class="align-middle"><a href="{% url 'deactivate_book' book.pk %}" class="btn btn-primary btn-sm" role="button">DEACTIVATE</a></td>
+                <td class="align-middle"><a href="{% url 'edit_book' book.pk %}" class="btn btn-secondary btn-sm" role="button">UPDATE</a></td>
+                <td class="align-middle"><a href="{% url 'deactivate_book' book.pk %}" class="btn btn-danger btn-sm" role="button">DEACTIVATE</a></td>
             </tr>
         {% endfor %}
             </tbody>

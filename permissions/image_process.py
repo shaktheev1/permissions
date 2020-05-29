@@ -22,8 +22,6 @@ def i_process(isbn, media_path):
                 outfile = os.path.join(root,images,os.path.splitext(infile)[0]+".jpg")
                 out = im.convert("RGB")
                 out.save(outfile, "JPEG")
-            # do something
-        # return something
         return "Images processed successfully for ISBN {}".format(isbn)
     else:
         return "Images are not available for ISBN {} inside documents folder.".format(isbn)

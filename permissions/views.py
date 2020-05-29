@@ -25,6 +25,8 @@ from .image_process import i_process
 from .load_data import import_data
 import pandas as pd
 import logging
+import socket
+import errno
 
 logging.config.dictConfig({
     'version': 1,
@@ -52,11 +54,11 @@ logging.config.dictConfig({
     'loggers': {
         '': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file']
+            # 'handlers': ['console', 'file']
         },
         'django.request': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file']
+            # 'handlers': ['console', 'file']
         }
     }
 })
@@ -550,7 +552,15 @@ def email_agreement(request, pk, ems):
     response = HttpResponse(content_type="application/pdf")
     email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
-    email.send()
+    # email.send()
+
+    internet_socket = True
+    try:
+        email.send()
+    except socket.error as e:
+        if e.errno == 8:
+            print('There was an error sending an email: ', e)
+            internet_socket = False
     user = request.user.username
     
     for ems in ems_list:
@@ -559,7 +569,7 @@ def email_agreement(request, pk, ems):
                 e.requested_on=timezone.now()
                 e.save()
                 logger.info("Email agreement sent for ISBN {}, chapter {}, element {} by user {} at {}".format(book.isbn, e.unit.chapter_number, e.element_number, user, timezone.now()))
-    return render(request, 'email_agreement_status.html', {'book': book, 'user': e_list})
+    return render(request, 'email_agreement_status.html', {'book': book, 'user': user_data, 'e_list': e_list, 'internet_socket': internet_socket})
 
 
 def test_email_agreement(request, pk, ems):
@@ -584,8 +594,17 @@ def test_email_agreement(request, pk, ems):
     response = HttpResponse(content_type="application/pdf")
     email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
-    result = email.send()
-    return render(request, 'test_email_agreement_status.html', {'book': book, 'user': user_data})
+    # email.send()
+
+    internet_socket = True
+    try:
+        email.send()
+    except socket.error as e:
+        if e.errno == 8:
+            print('There was an error sending an email: ', e)
+            internet_socket = False
+
+    return render(request, 'test_email_agreement_status.html', {'book': book, 'user': user_data, 'internet_socket': internet_socket})
 
 def email_body(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
@@ -756,8 +775,17 @@ def followup_email_agreement(request, pk, ems):
     response = HttpResponse(content_type="application/pdf")
     email.attach("agreement_{}_{}.pdf".format(book.isbn,rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
-    email.send()
+    # email.send()
     
+    internet_socket = True
+    try:
+        email.send()
+    except socket.error as e:
+        if e.errno == 8:
+            print('There was an error sending an email: ', e)
+            internet_socket = False
+    user = request.user.username
+
     user = User.objects.get(username=request.user.username)
     for ems in ems_list:
         for e in element:
@@ -765,7 +793,7 @@ def followup_email_agreement(request, pk, ems):
                 e.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
                 e.save()
                 logger.info("Followup date updated to {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, e.unit.chapter_number, e.element_number, user, timezone.now()))  
-    return render(request, 'followup_email_agreement_status.html', {'book': book, 'user': e_list})
+    return render(request, 'followup_email_agreement_status.html', {'book': book, 'user': user_data, 'e_list': e_list, 'internet_socket': internet_socket})
 
 def test_followup_email_agreement(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
@@ -791,8 +819,15 @@ def test_followup_email_agreement(request, pk, ems):
     response = HttpResponse(content_type="application/pdf")
     email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
-    email.send()  
-    return render(request, 'test_followup_email_agreement_status.html', {'book': book, 'user': user_data})
+    # email.send()  
+    internet_socket = True
+    try:
+        email.send()
+    except socket.error as e:
+        if e.errno == 8:
+            print('There was an error sending an email: ', e)
+            internet_socket = False
+    return render(request, 'test_followup_email_agreement_status.html', {'book': book, 'user': user_data, 'internet_socket': internet_socket})
 
 def followup_email_agreement_e(request, pk, pk1, pk2):
     book = get_object_or_404(Book, pk=pk)
@@ -821,11 +856,19 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     response = HttpResponse(content_type="application/pdf")
     email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
-    email.send()
+    # email.send()
+    internet_socket = True
+    try:
+        email.send()
+    except socket.error as e:
+        if e.errno == 8:
+            print('There was an error sending an email: ', e)
+            internet_socket = False
+
     element.follow_up.create(followedup_at=timezone.now(), followedup_by=user)
     element.save()
     logger.info("Followup date updated to {} for ISBN {}, chapter {}, element {} by {} at {}".format(timezone.now(), book.isbn, unit.chapter_number, element.element_number, user, timezone.now()))  
-    return render(request, 'followup_email_agreement_status.html', {'book': book, 'user': e_list})
+    return render(request, 'followup_email_agreement_status.html', {'book': book, 'user': user_data, 'e_list': e_list, 'internet_socket': internet_socket})
 
 def test_followup_email_agreement_e(request, pk, pk1, pk2):
     book = get_object_or_404(Book, pk=pk)
@@ -848,8 +891,15 @@ def test_followup_email_agreement_e(request, pk, pk1, pk2):
     response = HttpResponse(content_type="application/pdf")
     email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
-    email.send()  
-    return render(request, 'test_followup_email_agreement_status.html', {'book': book, 'user': user_data})
+    # email.send()  
+    internet_socket = True
+    try:
+        email.send()
+    except socket.error as e:
+        if e.errno == 8:
+            print('There was an error sending an email: ', e)
+            internet_socket = False
+    return render(request, 'test_followup_email_agreement_status.html', {'book': book, 'user': user_data, 'internet_socket': internet_socket})
 
 def update_status_denied(request, pk, pk1, pk2):
     book = get_object_or_404(Book, pk=pk)

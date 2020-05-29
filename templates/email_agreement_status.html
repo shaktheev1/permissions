@@ -12,6 +12,13 @@
 {% endblock %}
 
 {% block content %}
-Test agreement successfully sent to {{user}}
-{{result}}
+{%  if internet_socket %}
+<div class="alert alert-success" role="alert">
+Agreement successfully sent to {{e_list}}
+</div>
+{% else %}
+<div class="alert alert-warning" role="alert">
+Email not sent. Please check your internet connection!
+</div>
+{% endif %}
 {% endblock %}

@@ -98,10 +98,21 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'permissionsdb',
+        'USER': 'sakthi',
+        'PASSWORD': 'India@123',
+        'HOST': 'localhost',
+        'POST': '5432', 
     }
 }
 
@@ -163,6 +174,7 @@ EMAIL_HOST_USER = 's4permission@gmail.com'
 EMAIL_HOST_PASSWORD = 'S4Carlisle#123'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 LOGIN_URL = 'login'
 

@@ -31,7 +31,7 @@
         <b>Element Number:</b> {{e.element_number}}<br/>
             <b> Chapter Number:</b> {{e.unit.chapter_number}}<br/>
             <b> Caption:</b> {{e.caption}}<br/>
-            <b> Permission </b> denied {{e.denied_on|timesince}} ago <a href="{% url 'update_status_restore' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-primary btn-sm" role="button">RESTORE</a></p>
+            <b> Permission </b> denied {{e.denied_on|timesince}} ago <a href="{% url 'update_status_restore' e.unit.book.pk e.unit.pk e.pk%}" class="btn btn-success btn-sm" role="button">RESTORE</a></p>
         {%endif%}
         {% endfor %}
     {% endfor %}

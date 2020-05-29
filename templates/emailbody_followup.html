@@ -25,7 +25,7 @@
 
     <table class="table table-bordered">
     <thead>
-     <th>Element Number</th><th>Date(s)<br/>(YYYY-MM-DD)</th>
+     <th>Element Number</th><th>Date(s)</th>
     </thead>
     <tbody>
 
@@ -33,9 +33,9 @@
     {% for e in element%}
         {% if ems == e.pk %}
                 {% if e.get_followup_count > 0%}
-                <tr><td>{{e.element_number}}</td><td>Followed Up on: {{e.get_followup_date|join:", "}}</td>
+                <tr><td>{{e.element_number}}</td><td>Requested on: {{e.requested_on|date:"d M Y"}}, Followed up on: {{e.get_followup_date|join:", "}}</td>
                 {% else %}
-                <tr><td>{{e.element_number}}</td><td>Requested on: {{e.requested_on}}</td>
+                <tr><td>{{e.element_number}}</td><td>Requested on: {{e.requested_on|date:"d M Y"}}</td>
                 {% endif %}
         {% endif %}
     {% endfor %}

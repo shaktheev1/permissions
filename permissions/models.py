@@ -42,7 +42,7 @@ SPECIFIED_CHOICES = [
 
 class Book(models.Model):
     publisher = models.ForeignKey(Publisher, null=True, blank=True, related_name='publisher', on_delete=models.CASCADE)
-    title = models.CharField(max_length=100, blank=True)
+    title = models.CharField(max_length=75, blank=True)
     isbn = models.CharField(max_length=13, unique=True, validators=[MinLengthValidator(13)])
     edition = models.CharField(max_length=10, blank=True)
     active = models.BooleanField(default=True)
@@ -70,7 +70,7 @@ class Book(models.Model):
 class Unit(models.Model):
     book = models.ForeignKey(Book, null=True, related_name='units', on_delete=models.CASCADE)
     chapter_number = models.CharField(max_length=30)
-    chapter_title = models.CharField(max_length=100, null=True, blank=True)
+    chapter_title = models.CharField(max_length=75, null=True, blank=True)
     active = models.BooleanField()
 
     def __str__(self):
@@ -105,7 +105,7 @@ class Element(models.Model):
     source = models.CharField(max_length=200, null=True, blank=True)
     credit_line = models.TextField(max_length=300, null=True, blank=True)
     # status = models.CharField(max_length=25, choices=STATUS_CHOICES, blank=True)
-    source_link = models.CharField(max_length=150, null=True, blank=True)
+    source_link = models.CharField(max_length=300, null=True, blank=True)
     title = models.CharField(max_length=200, null=True, blank=True)
     rh_email = models.CharField(max_length=200, null=True)
     alt_email = models.EmailField(null=True, blank=True)
@@ -129,6 +129,8 @@ class Element(models.Model):
     def clean(self):
         super().clean()
         if not(self.requested_on==None):
+            if (self.requested_on > timezone.now()):
+                raise ValidationError('Requested date is greater than current date.')
             if not(self.unit.book.created_at <= self.requested_on):
                 raise ValidationError('Requested date is less than book created date.')
             if not(self.granted_on==None):
@@ -161,8 +163,11 @@ class Element(models.Model):
 
     def get_followup_dates(self):
         followup_dates = FollowUp.objects.filter(element=self).order_by('-followedup_at')
-        f_dates = list(followup_dates)
-        return followup_dates
+        # f_dates = list(followup_dates)
+        f_dates = []
+        for f in followup_dates:
+            f_dates.append(datetime.strftime(f.followedup_at, "%b %d %Y"))
+        return f_dates
 
     def get_followup_count(self):
         return FollowUp.objects.filter(element=self).count()    
@@ -172,7 +177,10 @@ class Element(models.Model):
     
     def get_followup_date(self):
         followup_date = FollowUp.objects.filter(element=self).order_by('followedup_at')
-        f_dates = followup_date
+        # f_dates = followup_date
+        f_dates = []
+        for f in followup_date:
+            f_dates.append(f.followedup_at.strftime("%b %d %Y"))
         return f_dates
 
     def shortform(self):
