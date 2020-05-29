@@ -27,6 +27,8 @@ import pandas as pd
 import logging
 import socket
 import errno
+from os import path
+from django.conf import settings
 
 logging.config.dictConfig({
     'version': 1,
@@ -550,10 +552,20 @@ def email_agreement(request, pk, ems):
     stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
     weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(out, stylesheets=stylesheets)
     response = HttpResponse(content_type="application/pdf")
-    email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
+    email.attach("Jones_and_Bartlett_Learning_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     # email.send()
 
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                media_path = settings.MEDIA_ROOT
+                links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
+                if path.exists(links):
+                    if e.element_type == "Photo":
+                        print(links)
+                        email.attach_file(links)
+                        
     internet_socket = True
     try:
         email.send()
@@ -592,10 +604,20 @@ def test_email_agreement(request, pk, ems):
     stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
     weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(out, stylesheets=stylesheets)
     response = HttpResponse(content_type="application/pdf")
-    email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
+    email.attach("Jones_and_Bartlett_Learning_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     # email.send()
 
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                media_path = settings.MEDIA_ROOT
+                links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
+                if path.exists(links):
+                    if e.element_type == "Photo":
+                        print(links)
+                        email.attach_file(links)
+    
     internet_socket = True
     try:
         email.send()
@@ -773,10 +795,20 @@ def followup_email_agreement(request, pk, ems):
     stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
     weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(out, stylesheets=stylesheets)
     response = HttpResponse(content_type="application/pdf")
-    email.attach("agreement_{}_{}.pdf".format(book.isbn,rh_name), out.getvalue(), 'application/pdf')
+    email.attach("Jones_and_Bartlett_Learning_{}_{}.pdf".format(book.isbn,rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     # email.send()
     
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                media_path = settings.MEDIA_ROOT
+                links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
+                if path.exists(links):
+                    if e.element_type == "Photo":
+                        print(links)
+                        email.attach_file(links)
+
     internet_socket = True
     try:
         email.send()
@@ -817,9 +849,20 @@ def test_followup_email_agreement(request, pk, ems):
     stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
     weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(out, stylesheets=stylesheets)
     response = HttpResponse(content_type="application/pdf")
-    email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
+    email.attach("Jones_and_Bartlett_Learning_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
-    # email.send()  
+    # email.send()
+
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                media_path = settings.MEDIA_ROOT
+                links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
+                if path.exists(links):
+                    if e.element_type == "Photo":
+                        print(links)
+                        email.attach_file(links)
+
     internet_socket = True
     try:
         email.send()
@@ -854,9 +897,16 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
     weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(out, stylesheets=stylesheets)
     response = HttpResponse(content_type="application/pdf")
-    email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
+    email.attach("Jones_and_Bartlett_Learning_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     # email.send()
+
+    media_path = settings.MEDIA_ROOT
+    links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, element.unit.book.isbn,element.unit.book.isbn,element.unit.chapter_number,element.shortform(),element.element_number)
+    if path.exists(links):
+        if element.element_type == "Photo":
+            email.attach_file(links)
+
     internet_socket = True
     try:
         email.send()
@@ -889,9 +939,16 @@ def test_followup_email_agreement_e(request, pk, pk1, pk2):
     stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
     weasyprint.HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(out, stylesheets=stylesheets)
     response = HttpResponse(content_type="application/pdf")
-    email.attach("agreement_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
+    email.attach("Jones_and_Bartlett_Learning_{}_{}.pdf".format(book.isbn, rh_name), out.getvalue(), 'application/pdf')
     email.content_subtype = "html"
     # email.send()  
+
+    media_path = settings.MEDIA_ROOT
+    links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, element.unit.book.isbn,element.unit.book.isbn,element.unit.chapter_number,element.shortform(),element.element_number)
+    if path.exists(links):
+        if element.element_type == "Photo":
+            email.attach_file(links)
+
     internet_socket = True
     try:
         email.send()

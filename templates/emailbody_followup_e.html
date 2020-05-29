@@ -12,7 +12,7 @@
 <p>Hope you are doing well!</p>
 
  <p>I am {{user.first_name}}, Permission Specialist writing on behalf of my client Jones & Bartlett Learning, a textbook publishing company. </p>
-<p>This is a followup email for the permission request we sent for the following elements on the dates listed below:</p>
+{% comment %} <p>This is a followup email for the permission request we sent for the following elements on the dates listed below:</p>
 
 {% load humanize %}
 
@@ -35,14 +35,14 @@
     </tbody>
     </table>
     {% endif %}
-<p><b>Here is the copy of the original email:</b></p>
+<p><b>Here is the copy of the original email:</b></p> {% endcomment %}
 
 <p>I am currently working on </p>
 <p><b>{{ element.title }}</b></p>
 <p>We would like to obtain permission to use the attached image(s) of for this edition:
 <p>{{element.caption}}</p>
 I have attached a copy of the permission request for you, which contains more information of our publication and the rights that we are requesting.</p>
-                    <p><b>JBL ID:</b> {{element.file_name}}  ({{element.element_type}})<br/>
+                    <p><b>JBL ID:</b> {{element.file_name}}<br/>
                     <b>Description:</b> {{element.caption}}<br/>
                     <b>Credit Line:</b> {{element.credit_line}}<br/>
                     <b>Source:</b> {{element.source}}</p>
