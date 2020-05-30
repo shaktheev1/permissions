@@ -79,6 +79,21 @@ class Unit(models.Model):
     def get_element_count(self):
         return Element.objects.filter(unit=self).count()    
 
+class Contact(models.Model):
+    rh_firstname = models.CharField(max_length=100, null=True)
+    rh_lastname = models.CharField(max_length=100, null=True)
+    rh_email = models.CharField(max_length=100, null=True)
+    alt_email = models.EmailField(null=True, blank=True)
+    rh_address = models.TextField(max_length=300, null=True, blank=True)
+    phone = models.CharField(max_length=30, null=True, blank=True)
+    fax = models.CharField(max_length=30, null=True, blank=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.rh_email
+
+    def fullname(self):
+        return(' '.join(rh_firstname, rh_lastname))
 
 class Element(models.Model):
 
@@ -98,20 +113,21 @@ class Element(models.Model):
         ('Table', 'Table'),
     ]
     unit = models.ForeignKey(Unit, null=True, related_name='elements', on_delete=models.CASCADE)
+    contact = models.ForeignKey(Contact, null=True, related_name='contacts', on_delete=models.CASCADE)
     element_number = models.CharField(max_length=30)
     # specified_as = models.CharField(max_length=25, choices=SPECIFIED_CHOICES, blank=True)
-    caption = models.TextField(max_length=300, null=True, blank=True)
+    caption = models.TextField(max_length=1500, null=True, blank=True)
     element_type = models.CharField(max_length=25, choices=ELEMENT_TYPE, blank=True)
     source = models.CharField(max_length=200, null=True, blank=True)
     credit_line = models.TextField(max_length=300, null=True, blank=True)
     # status = models.CharField(max_length=25, choices=STATUS_CHOICES, blank=True)
     source_link = models.CharField(max_length=300, null=True, blank=True)
     title = models.CharField(max_length=200, null=True, blank=True)
-    rh_email = models.CharField(max_length=200, null=True)
-    alt_email = models.EmailField(null=True, blank=True)
-    rh_address = models.TextField(max_length=300, null=True, blank=True)
-    phone = models.CharField(max_length=20, null=True, blank=True)
-    fax = models.CharField(max_length=20, null=True, blank=True)
+    # rh_email = models.CharField(max_length=200, null=True)
+    # alt_email = models.EmailField(null=True, blank=True)
+    # rh_address = models.TextField(max_length=300, null=True, blank=True)
+    # phone = models.CharField(max_length=20, null=True, blank=True)
+    # fax = models.CharField(max_length=20, null=True, blank=True)
     insert_1 = models.CharField(max_length=200, null=True, blank=True)
     jbl_rh_name = models.CharField(max_length=75, null=True, blank=True)
     file_location = models.CharField(max_length=200, null=True, blank=True)

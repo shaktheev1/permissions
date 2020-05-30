@@ -1,5 +1,5 @@
 from django import forms
-from .models import Book, Unit, Element, FollowUp
+from .models import Book, Unit, Contact, Element, FollowUp
 from .widgets import BootstrapDateTimePickerInput
 from django.db import models
 from django.conf import settings
@@ -16,11 +16,16 @@ class NewUnitForm(forms.ModelForm):
         model = Unit
         fields = ['chapter_number', 'chapter_title', 'active']
 
+class NewContactForm(forms.ModelForm):
+    class Meta:
+        model = Contact
+        fields = '__all__'
+
 class NewElementForm(forms.ModelForm):
     class Meta:
         model = Element
         #fields = '__all__'
-        exclude = ('unit','requested_on','granted_on','created_by','updated_by','updated_at','permission_status','denied_on', 'active')
+        exclude = ('unit','requested_on','granted_on','created_by','updated_by','updated_at','permission_status','denied_on', 'active', 'rh_email', 'alt_email', 'rh_address', 'phone', 'fax', 'file_location', 'file_name')
         #fields = ['element_number', 'requested_on', 'granted_on', 'status']
 
 class NewFollowupForm(forms.ModelForm):

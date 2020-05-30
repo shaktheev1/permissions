@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 import math
 
-from permissions.models import Book, Unit, Element
+from permissions.models import Book, Unit, Contact, Element
 from pytz import UTC
 
 def import_data(isbn, data):
@@ -36,11 +36,13 @@ def import_data(isbn, data):
                 element.credit_line = data['Credit Line'][i]
                 element.source_link = data['Source Link'][i]
                 element.title = data['Title with author'][i]
-                element.rh_email = data['RH e-mail'][i]
-                element.alt_email = data['Alt - e-mail'][i]
-                element.rh_address = data['RH Address'][i]
-                element.phone = data['Phone'][i]
-                element.fax = data['Fax'][i]
+                contact = Contact.objects.get(rh_email = data['RH Contact'][i])
+                element.contact_id = contact.pk
+                # element.rh_email = data['RH e-mail'][i]
+                # element.alt_email = data['Alt - e-mail'][i]
+                # element.rh_address = data['RH Address'][i]
+                # element.phone = data['Phone'][i]
+                # element.fax = data['Fax'][i]
                 element.insert_1 = data['Insert 1'][i]
                 element.jbl_rh_name = data['JBL RH Name'][i]
                 element.file_location = data['File Location'][i]

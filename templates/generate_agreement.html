@@ -9,7 +9,7 @@
 {% block content %}
 <body>
 <p style="text-align:left;"><b>{% with element.all|first as e %}
-  <b>{{ e.rh_address|linebreaksbr }}</b>
+  <b>{{ e.contact.rh_address|linebreaksbr }}</b>
 {% endwith %}</b> <span style="float:right;"><b>Date: {% now "m/d/Y" %}</b></span><br/>
 </p>
 <br/>

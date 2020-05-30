@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import NewBookForm, NewUnitForm, NewElementForm, NewFollowupForm
 from django.utils.decorators import method_decorator
-from .models import Book, Unit, Element, FollowUp
+from .models import Book, Unit, Contact, Element, FollowUp
 from django.views.generic import DetailView, UpdateView, FormView, ListView, CreateView, DeleteView
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect
@@ -23,6 +23,7 @@ from django.db.models import Q
 import subprocess
 from .image_process import i_process
 from .load_data import import_data
+from .load_contacts import import_contacts
 import pandas as pd
 import logging
 import socket
@@ -90,7 +91,7 @@ def process_images(request, pk):
 def process_data(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
-        book_resource = BookResource()
+        # book_resource = BookResource()
         dataset = Dataset()
         new_book = request.FILES.get('myfile', False)
         if new_book == False:
@@ -105,7 +106,23 @@ def process_data(request, pk):
     else:
         return render(request, 'import_books.html')
     return render(request, 'import_status.html', {'book': book, 'result': result})
-    
+
+def import_contact(request):
+    if request.method == 'POST':
+        dataset = Dataset()
+        new_contact = request.FILES.get('myfile', False)
+        if new_contact == False:
+            return render(request, 'import_contacts.html')
+        imported_data = dataset.load(new_contact.read())
+        media_path = settings.MEDIA_ROOT
+        data = imported_data.export('df')
+        result = import_contacts(data)
+        user = request.user.username
+        logger.info("Contacts imported by {} at {}.".format(user, timezone.now()))
+    else:
+        return render(request, 'import_contacts.html')
+    return render(request, 'import_contacts_status.html', {'result': result})
+
 @method_decorator(login_required, name='dispatch')
 class BookListView(ListView):
     model = Book
@@ -234,11 +251,13 @@ def new_element(request, pk, pk1):
             element.status = form.cleaned_data.get('status')
             element.source_link = form.cleaned_data.get('source_link')
             element.title = form.cleaned_data.get('title')
-            element.rh_email = form.cleaned_data.get('rh_email')
-            element.alt_email = form.cleaned_data.get('alt_email')
-            element.rh_address = form.cleaned_data.get('rh_address')
-            element.phone = form.cleaned_data.get('phone')
-            element.fax = form.cleaned_data.get('fax')
+            contact = Contact()
+            element.contact = contact.rh_email
+            # element.rh_email = form.cleaned_data.get('rh_email')
+            # element.alt_email = form.cleaned_data.get('alt_email')
+            # element.rh_address = form.cleaned_data.get('rh_address')
+            # element.phone = form.cleaned_data.get('phone')
+            # element.fax = form.cleaned_data.get('fax')
             element.insert_1 = form.cleaned_data.get('insert_1')
             element.jbl_rh_name = form.cleaned_data.get('jbl_rh_name')
             element.file_location = form.cleaned_data.get('file_location')
@@ -373,7 +392,8 @@ def delete_followup(request, pk, pk1, pk2, pk3):
 class ElementUpdateView(UpdateView):
     model = Element
     # fields = '__all__'
-    fields = ('unit', 'element_number', 'caption', 'element_type', 'source', 'credit_line', 'source_link', 'title', 'rh_email', 'alt_email', 'rh_address', 'phone', 'fax', 'insert_1', 'jbl_rh_name', 'requested_on', 'granted_on', 'permission_status', 'denied_on')
+    # fields = ('unit', 'element_number', 'caption', 'element_type', 'source', 'credit_line', 'source_link', 'title', 'rh_email', 'alt_email', 'rh_address', 'phone', 'fax', 'insert_1', 'jbl_rh_name', 'requested_on', 'granted_on', 'permission_status', 'denied_on')
+    fields = ('unit', 'element_number', 'caption', 'element_type', 'source', 'credit_line', 'source_link', 'title', 'contact', 'insert_1', 'jbl_rh_name', 'requested_on', 'granted_on', 'permission_status', 'denied_on')
     template_name = 'edit_element.html'
     pk_url_kwarg = 'element_pk'
     context_object_name = 'element_e'
@@ -505,8 +525,8 @@ def unit_list(request, pk):
             source=p.source.strip()
         if not p.credit_line is None:
             credit_line=p.credit_line.strip()
-        if not p.rh_email is None:
-            rh_email=p.rh_email.strip()
+        if not p.contact.rh_email is None:
+            rh_email=p.contact.rh_email.strip()
         s=source,credit_line,rh_email
         context[s].append(p.pk)
     context.default_factory = None
@@ -536,7 +556,7 @@ def email_agreement(request, pk, ems):
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
-                email_rh = e.rh_email
+                email_rh = e.contact.rh_email
                 jbl_rh_name = e.jbl_rh_name
     rh_name = jbl_rh_name.replace(" ", "_")
 
@@ -649,8 +669,8 @@ def requested_list(request, pk):
             source=p.source.strip()
         if not p.credit_line is None:
             credit_line=p.credit_line.strip()
-        if not p.rh_email is None:
-            rh_email=p.rh_email.strip()
+        if not p.contact.rh_email is None:
+            rh_email=p.contact.rh_email.strip()
         s=source,credit_line,rh_email
         context[s].append(p.pk)
     context.default_factory = None
@@ -670,8 +690,8 @@ def granted_list(request, pk):
             source=p.source.strip()
         if not p.credit_line is None:
             credit_line=p.credit_line.strip()
-        if not p.rh_email is None:
-            rh_email=p.rh_email.strip()
+        if not p.contact.rh_email is None:
+            rh_email=p.contact.rh_email.strip()
         s=source,credit_line,rh_email
         context[s].append(p.pk)
     context.default_factory = None
@@ -777,7 +797,7 @@ def followup_email_agreement(request, pk, ems):
         for e in element:
             if ems==e.pk:
                 dates[e.element_number].append(e.follow_up.all().order_by('followedup_at'))
-                email_rh = e.rh_email
+                email_rh = e.contact.rh_email
                 jbl_rh_name = e.jbl_rh_name
     rh_name = jbl_rh_name.replace(" ", "_")
                 #dates=e.follow_up.all()
@@ -883,7 +903,7 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     jbl_rh_name = element.jbl_rh_name
     rh_name = jbl_rh_name.replace(" ", "_")
     
-    email_rh = element.rh_email
+    email_rh = element.contact.rh_email
     e_list = email_rh.split (",")
 
     user_data = User.objects.get(username=request.user.username)
@@ -999,8 +1019,8 @@ def denied_list(request, pk):
             source=p.source.strip()
         if not p.credit_line is None:
             credit_line=p.credit_line.strip()
-        if not p.rh_email is None:
-            rh_email=p.rh_email.strip()
+        if not p.contact.rh_email is None:
+            rh_email=p.contact.rh_email.strip()
         s=source,credit_line,rh_email
         context[s].append(p.pk)
     context.default_factory = None
