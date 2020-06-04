@@ -20,6 +20,22 @@ def import_data(isbn, data):
         return("Key column 'Type' is missing.")    
 
     book = Book.objects.get(isbn=isbn)
+    for i,u in enumerate(data['Chapter Number']):
+        if pd.isnull(u)==True:
+            return ("One of the chapter numbers is empty! Please delete any empty rows at the end!")
+    
+    for i,x in enumerate(data['Element Number']):
+        if pd.isnull(x)==True:
+            return("One of the element numbers is empty!")
+
+    for i,y in enumerate(data['RH Contact']):
+        if pd.isnull(y)==True:
+            return("One of the contacts is empty!")
+        contact = Contact.objects.filter(rh_email = data['RH Contact'][i]).first()
+        if contact==None:
+            return("Contact {} does not exist in the contact's database.".format(data['RH Contact'][i]))
+    
+    
     for u in set(data['Chapter Number']):
         # print("{} - {}".format(u, type(u)))
         if pd.isnull(u)==False:
@@ -31,7 +47,6 @@ def import_data(isbn, data):
                 unit.save()
             else:
                 return("Chapters already exist...")
-       
 
     for i,x in enumerate(data['Chapter Number']):
         if pd.isnull(x)==False:
@@ -46,7 +61,7 @@ def import_data(isbn, data):
                 element.credit_line = data['Credit Line'][i] if 'Credit Line' in data else ''
                 element.source_link = data['Source Link'][i] if 'Source Link' in data else ''
                 element.title = data['Title with author'][i] if 'Title with author' in data else ''
-                contact = Contact.objects.get(rh_email = data['RH Contact'][i])
+                contact = Contact.objects.filter(rh_email = data['RH Contact'][i]).first()
                 element.contact_id = contact.pk
                 # element.rh_email = data['RH e-mail'][i]
                 # element.alt_email = data['Alt - e-mail'][i]

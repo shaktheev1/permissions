@@ -24,6 +24,12 @@ from permissions import views
 
 urlpatterns = [
     url(r'^$', views.BookListView.as_view(), name='home'),
+    url(r'^contacts$', views.ContactListView.as_view(), name='contacts'),
+    url(r'^contacts/new/$', views.NewContactView.as_view(), name='new_contact'),
+    url(r'^contacts/(?P<contact_pk>\d+)/edit/$', views.ContactUpdateView.as_view(), name='edit_contact'),
+    url(r'^contacts/(?P<pk>\d+)/deactivate/$', views.deactivate_contact, name='deactivate_contact'),
+    url(r'^contacts/(?P<pk>\d+)/activate/$', views.activate_contact, name='activate_contact'),
+    url(r'^contacts/inactive$', views.ContactListInactiveView.as_view(), name='contact_inactive'),
     url(r'^testing/$', views.testing, name='testing'),
     url(r'^books/(?P<pk>\d+)/process_images/$', views.process_images, name='process_images'),
     url(r'^books/(?P<pk>\d+)/process_data/$', views.process_data, name='process_data'),

@@ -82,7 +82,7 @@ class Unit(models.Model):
 class Contact(models.Model):
     rh_firstname = models.CharField(max_length=100, null=True)
     rh_lastname = models.CharField(max_length=100, null=True)
-    rh_email = models.CharField(max_length=100, null=True)
+    rh_email = models.CharField(max_length=100, unique=True, null=True)
     alt_email = models.EmailField(null=True, blank=True)
     rh_address = models.TextField(max_length=300, null=True, blank=True)
     phone = models.CharField(max_length=30, null=True, blank=True)
@@ -94,6 +94,11 @@ class Contact(models.Model):
 
     def fullname(self):
         return(' '.join(rh_firstname, rh_lastname))
+    
+    def clean(self):
+        super().clean()
+        if (self.rh_email == self.alt_email):
+            raise ValidationError('RH email and Alt email cannot be same!')
 
 class Element(models.Model):
 

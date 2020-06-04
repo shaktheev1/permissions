@@ -3,7 +3,7 @@ from django.db.models import Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import NewBookForm, NewUnitForm, NewElementForm, NewFollowupForm
+from .forms import NewBookForm, NewUnitForm, NewElementForm, NewFollowupForm, NewContactForm
 from django.utils.decorators import method_decorator
 from .models import Book, Unit, Contact, Element, FollowUp
 from django.views.generic import DetailView, UpdateView, FormView, ListView, CreateView, DeleteView
@@ -124,6 +124,13 @@ def import_contact(request):
     return render(request, 'import_contacts_status.html', {'result': result})
 
 @method_decorator(login_required, name='dispatch')
+class NewContactView(CreateView):
+    model = Contact
+    form_class = NewContactForm
+    success_url = reverse_lazy('contacts')
+    template_name = 'new_contact.html'
+
+@method_decorator(login_required, name='dispatch')
 class BookListView(ListView):
     model = Book
     context_object_name = 'books'
@@ -142,6 +149,58 @@ class BookListInactiveView(ListView):
     
     def get_queryset(self):
         queryset = Book.objects.filter(active=False).order_by('-created_at')
+        return queryset
+
+@method_decorator(login_required, name='dispatch')
+class ContactListView(ListView):
+    model = Contact
+    context_object_name = 'contacts'
+    paginate_by = 8
+    template_name = 'contacts.html'
+    
+    def get_queryset(self):
+        queryset = Contact.objects.filter(active=True).order_by('-rh_firstname')
+        return queryset
+
+@method_decorator(login_required, name='dispatch')
+class ContactUpdateView(UpdateView):
+    model = Contact
+    fields = ('rh_firstname', 'rh_lastname', 'rh_email', 'alt_email', 'rh_address', 'active')
+    template_name = 'edit_contact.html'
+    pk_url_kwarg = 'contact_pk'
+    context_object_name = 'contact_e'
+
+    def form_valid(self, form):
+        contact_e = form.save(commit=False)
+        contact_e.save()
+        logger.info("Contact updated by {} at {}.".format(contact_e.rh_email, timezone.now()))
+        return redirect('contacts')
+
+def deactivate_contact(request, pk):
+    contact = get_object_or_404(Contact, pk=pk)
+    contact.active = False
+    contact.save()
+    user = request.user.username
+    logger.info("Contact {} deactivated by {} at {}.".format(contact.rh_email, user, timezone.now()))
+    return redirect('contacts')
+    # return HttpResponseRedirect(request.path_info)
+
+def activate_contact(request, pk):
+    contact = get_object_or_404(Contact, pk=pk)
+    contact.active = True
+    contact.save()
+    user = request.user.username
+    logger.info("Contact {} activated by {} at {}.".format(contact.rh_email, user, timezone.now()))
+    return redirect('contact_inactive')
+
+class ContactListInactiveView(ListView):
+    model = Contact
+    context_object_name = 'contacts'
+    paginate_by = 8
+    template_name = 'contact_inactive.html'
+    
+    def get_queryset(self):
+        queryset = Contact.objects.filter(active=False).order_by('-rh_firstname')
         return queryset
 
 @method_decorator(login_required, name='dispatch')
@@ -181,6 +240,8 @@ class UnitsListView(ListView):
 
     def get_context_data(self, **kwargs):
         kwargs['book'] = self.book
+        kwargs['user'] = self.request.user
+        kwargs['group'] = self.request.user.groups.values_list('name', flat=True).first()
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
@@ -218,6 +279,7 @@ class ElementsListView(ListView):
 
     def get_context_data(self, **kwargs):
         kwargs['unit'] = self.unit
+        kwargs['group'] = self.request.user.groups.values_list('name', flat=True).first()
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
@@ -1025,4 +1087,3 @@ def denied_list(request, pk):
         context[s].append(p.pk)
     context.default_factory = None
     return render(request, "denied_list.html", {'context': context, 'element': element, 'pk': pk, 'book': book})
-
