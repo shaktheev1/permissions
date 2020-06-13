@@ -614,12 +614,18 @@ def email_agreement(request, pk, ems):
     book = get_object_or_404(Book, pk=pk)
     ems_list = json.loads(ems)    
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
-
+    media_path = settings.MEDIA_ROOT
+    
+    jbl_rh_name = ''
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
                 email_rh = e.contact.rh_email
                 jbl_rh_name = e.jbl_rh_name
+
+    if jbl_rh_name=='':
+        return redirect('unit_list', pk=book.pk)
+    
     rh_name = jbl_rh_name.replace(" ", "_")
 
     e_list = email_rh.split (",")
@@ -641,8 +647,7 @@ def email_agreement(request, pk, ems):
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
-                media_path = settings.MEDIA_ROOT
-                links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
+                links="{}/documents/{}/resized/{}_CH{}_{}{}.png".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
                 if path.exists(links):
                     if e.element_type == "Photo":
                         print(links)
@@ -671,10 +676,17 @@ def test_email_agreement(request, pk, ems):
     book = get_object_or_404(Book, pk=pk)
     ems_list = json.loads(ems)    
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
+    media_path = settings.MEDIA_ROOT
+
+    jbl_rh_name = ''
+
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
                 jbl_rh_name = e.jbl_rh_name
+    if jbl_rh_name=='':
+        return redirect('unit_list', pk=book.pk)
+
     rh_name = jbl_rh_name.replace(" ", "_")
     user_data = User.objects.get(username=request.user.username)
     message = render_to_string("emailbody.html", {'ems_list': ems_list, 'element': element, 'user': user_data})
@@ -693,8 +705,7 @@ def test_email_agreement(request, pk, ems):
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
-                media_path = settings.MEDIA_ROOT
-                links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
+                links="{}/documents/{}/resized/{}_CH{}_{}{}.png".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
                 if path.exists(links):
                     if e.element_type == "Photo":
                         print(links)
@@ -852,15 +863,21 @@ def followup_email_body_e(request, pk, pk1, pk2):
 def followup_email_agreement(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
     book = get_object_or_404(Book, pk=pk)
+    media_path = settings.MEDIA_ROOT
+
     dates = defaultdict(list)
     dict(dates)
-    ems_list = json.loads(ems)   
+    ems_list = json.loads(ems)
+    jbl_rh_name = ''   
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
                 dates[e.element_number].append(e.follow_up.all().order_by('followedup_at'))
                 email_rh = e.contact.rh_email
                 jbl_rh_name = e.jbl_rh_name
+    if jbl_rh_name=='':
+        return redirect('unit_list', pk=book.pk)
+
     rh_name = jbl_rh_name.replace(" ", "_")
                 #dates=e.follow_up.all()
 
@@ -884,8 +901,7 @@ def followup_email_agreement(request, pk, ems):
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
-                media_path = settings.MEDIA_ROOT
-                links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
+                links="{}/documents/{}/resized/{}_CH{}_{}{}.png".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
                 if path.exists(links):
                     if e.element_type == "Photo":
                         print(links)
@@ -913,6 +929,7 @@ def test_followup_email_agreement(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
     book = get_object_or_404(Book, pk=pk)
     ems_list = json.loads(ems)
+    media_path = settings.MEDIA_ROOT
 
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
     user_data = User.objects.get(username=request.user.username)
@@ -938,8 +955,7 @@ def test_followup_email_agreement(request, pk, ems):
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
-                media_path = settings.MEDIA_ROOT
-                links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
+                links="{}/documents/{}/resized/{}_CH{}_{}{}.png".format(media_path, e.unit.book.isbn,e.unit.book.isbn,e.unit.chapter_number,e.shortform(),e.element_number)
                 if path.exists(links):
                     if e.element_type == "Photo":
                         print(links)
@@ -961,8 +977,10 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     user = User.objects.get(username=request.user.username)
 
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
-
+    
     jbl_rh_name = element.jbl_rh_name
+    if jbl_rh_name=='':
+        return redirect('unit_list', pk=book.pk)
     rh_name = jbl_rh_name.replace(" ", "_")
     
     email_rh = element.contact.rh_email
@@ -984,7 +1002,7 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     # email.send()
 
     media_path = settings.MEDIA_ROOT
-    links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, element.unit.book.isbn,element.unit.book.isbn,element.unit.chapter_number,element.shortform(),element.element_number)
+    links="{}/documents/{}/resized/{}_CH{}_{}{}.png".format(media_path, element.unit.book.isbn,element.unit.book.isbn,element.unit.chapter_number,element.shortform(),element.element_number)
     if path.exists(links):
         if element.element_type == "Photo":
             email.attach_file(links)
@@ -1026,7 +1044,8 @@ def test_followup_email_agreement_e(request, pk, pk1, pk2):
     # email.send()  
 
     media_path = settings.MEDIA_ROOT
-    links="{}/documents/{}/resized/{}_CH{}_{}{}.jpg".format(media_path, element.unit.book.isbn,element.unit.book.isbn,element.unit.chapter_number,element.shortform(),element.element_number)
+    links="{}/documents/{}/resized/{}_CH{}_{}{}.png".format(media_path, element.unit.book.isbn,element.unit.book.isbn,element.unit.chapter_number,element.shortform(),element.element_number)
+    print(links)
     if path.exists(links):
         if element.element_type == "Photo":
             email.attach_file(links)

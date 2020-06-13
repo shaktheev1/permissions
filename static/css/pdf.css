@@ -1,6 +1,3 @@
-/* body {
-    background-image: url(../img/double-bubble-outline.png);
-  } */
   
   .logo {
     font-family: 'Peralta', cursive;
@@ -14,19 +11,21 @@
   .logo a:active {
     text-decoration: none;
   }
-
-  header {
-    position: fixed;
-    top: 0;
-    left: 0;
-
-    height: 2.5cm;
-    width: 100%;
-    background-color: #1a1a1a;
+body {
+  text-align: justify;
+}
+@page {
+  size: a4 portrait;
+  margin: 80mm 20mm 20mm 20mm;
+  @top-left{
+    content: url(../img/JBL_Logo_resized1.png);
+  };
+  @bottom-right{
+    content: "An Ascend Learning Company";
+  }
 }
 
-@page {
-  @top-right{
-      background-image: url(../static/img/JBL_Logo.jpg);
-  }
+.responsive {
+  width: 100%;
+  height: auto;
 }

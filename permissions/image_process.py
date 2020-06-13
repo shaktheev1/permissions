@@ -7,7 +7,7 @@ from os import path
 
 def i_process(isbn, media_path):
     images = 'resized'
-    basewidth = 450
+    basewidth = 400
     #root=input("Enter folder name:")
     root=media_path+"/documents/"+isbn
     if path.exists(root):
@@ -19,9 +19,9 @@ def i_process(isbn, media_path):
                 im = im.resize((basewidth, hsize), PIL.Image.ANTIALIAS)
                 if not(os.path.exists(os.path.join(root,images))):
                     os.mkdir(os.path.join(root,images))
-                outfile = os.path.join(root,images,os.path.splitext(infile)[0]+".jpg")
+                outfile = os.path.join(root,images,os.path.splitext(infile)[0]+".png")
                 out = im.convert("RGB")
-                out.save(outfile, "JPEG")
+                out.save(outfile, "PNG")
         return "Images processed successfully for ISBN {}".format(isbn)
     else:
         return "Images are not available for ISBN {} inside documents folder.".format(isbn)
