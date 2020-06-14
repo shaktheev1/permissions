@@ -24,6 +24,8 @@ from permissions import views
 
 urlpatterns = [
     url(r'^$', views.BookListView.as_view(), name='home'),
+    url(r'^books$', views.BookListView.as_view(), name='home'),
+    url(r'^books/search$', views.book_search, name='book_search'),
     url(r'^contacts$', views.ContactListView.as_view(), name='contacts'),
     url(r'^contacts/new/$', views.NewContactView.as_view(), name='new_contact'),
     url(r'^contacts/(?P<contact_pk>\d+)/edit/$', views.ContactUpdateView.as_view(), name='edit_contact'),

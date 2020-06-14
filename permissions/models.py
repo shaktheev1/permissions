@@ -34,6 +34,17 @@ SPECIFIED_CHOICES = [
     ]
 
 
+class BookActiveManager(models.Manager):
+    def get_queryset(self):
+        return super(BookActiveManager,
+                     self).get_queryset()\
+                          .filter(active=True)
+
+class ElementActiveManager(models.Manager):
+    def get_queryset(self):
+        return super(ElementActiveManager,
+                     self).get_queryset()\
+                          .filter(active=True)
 
 # def isbn_validator(value):
 #     if len(value) < 13:
@@ -46,6 +57,8 @@ class Book(models.Model):
     isbn = models.CharField(max_length=13, unique=True, validators=[MinLengthValidator(13)])
     edition = models.CharField(max_length=10, blank=True)
     active = models.BooleanField(default=True)
+    objects = models.Manager()
+    activated = BookActiveManager()
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
@@ -146,6 +159,7 @@ class Element(models.Model):
     created_by = models.ForeignKey(User, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
     updated_by = models.ForeignKey(User, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
+    # activated = ElementActiveManager()
     
     def clean(self):
         super().clean()

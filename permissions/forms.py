@@ -39,3 +39,6 @@ class DateForm(forms.Form):
         input_formats=['%d/%m/%Y %H:%M'], 
         widget=BootstrapDateTimePickerInput()
     )
+
+class SearchForm(forms.Form):
+    query = forms.CharField()

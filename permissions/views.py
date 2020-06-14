@@ -3,7 +3,7 @@ from django.db.models import Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import NewBookForm, NewUnitForm, NewElementForm, NewFollowupForm, NewContactForm
+from .forms import NewBookForm, NewUnitForm, NewElementForm, NewFollowupForm, NewContactForm, SearchForm
 from django.utils.decorators import method_decorator
 from .models import Book, Unit, Contact, Element, FollowUp
 from django.views.generic import DetailView, UpdateView, FormView, ListView, CreateView, DeleteView
@@ -30,6 +30,7 @@ import socket
 import errno
 from os import path
 from django.conf import settings
+from django.contrib.postgres.search import SearchVector
 
 logging.config.dictConfig({
     'version': 1,
@@ -1106,3 +1107,21 @@ def denied_list(request, pk):
         context[s].append(p.pk)
     context.default_factory = None
     return render(request, "denied_list.html", {'context': context, 'element': element, 'pk': pk, 'book': book})
+
+def book_search(request):
+    form = SearchForm()
+    query = None
+    results = []
+    results_element = []
+    results_contact = []
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results = Book.activated.annotate(search=SearchVector('title','isbn'),).filter(search=query)
+            results_element = Element.objects.annotate(search=SearchVector('contact__rh_email', 'contact__alt_email', 'contact__rh_firstname', 'contact__rh_lastname', 'element_type', 'title', 'jbl_rh_name', 'source', 'insert_1', 'credit_line', 'caption', 'element_number')).filter(search=query)
+            results_contact = Contact.objects.annotate(search=SearchVector('rh_email', 'alt_email', 'rh_firstname', 'rh_lastname', 'rh_address')).filter(search=query)
+            # results_contact = Element.objects.filter(contact__rh_email=query)
+            # results_contact = Element.objects.filter(search=SearchVector('element_number'),).filter(search=query)
+
+    return render(request, 'search.html',{'form': form, 'query': query, 'results': results, 'element': results_element, 'contact': results_contact})
