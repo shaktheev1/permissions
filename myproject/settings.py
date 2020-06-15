@@ -66,12 +66,14 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django_session_timeout.middleware.SessionTimeoutMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'myproject.urls'
 
@@ -181,6 +183,7 @@ LOGIN_URL = 'login'
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 
+SESSION_EXPIRE_SECONDS = 600
 
 
 
