@@ -3,6 +3,19 @@
 <head>
 <meta charset="utf-8">
 <title>Permission</title>
+<style>
+@page {
+  size: a4 portrait;
+  margin: 80mm 20mm 20mm 20mm;
+  @top-left{
+    content: url({{element.unit.book.publisher.publisher_logo.url}});
+  };
+  @bottom-right{
+    content: "{{element.unit.book.publisher.publisher_imprint}}";
+  }
+}
+</style>
+
 <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     {% block stylesheet %}{% endblock %}
 </head>

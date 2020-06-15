@@ -12,6 +12,8 @@ class Publisher(models.Model):
     created_at = models.DateField(auto_now_add=True)
     updated_by = models.ForeignKey(User, null=True, blank=True, related_name='+', on_delete=models.CASCADE)
     updated_at = models.DateField(auto_now_add=True)
+    publisher_logo = models.ImageField(upload_to='logos', null=True)
+    publisher_imprint = models.CharField(max_length=250, blank=True, null=True)
    
     def __str__(self):
         return self.publisher_name

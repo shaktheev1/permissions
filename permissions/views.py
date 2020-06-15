@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import NewBookForm, NewUnitForm, NewElementForm, NewFollowupForm, NewContactForm, SearchForm
 from django.utils.decorators import method_decorator
 from .models import Book, Unit, Contact, Element, FollowUp
+from publisher.models import Publisher
 from django.views.generic import DetailView, UpdateView, FormView, ListView, CreateView, DeleteView
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect
@@ -613,9 +614,14 @@ def generate_agreement(request, pk, ems):
 def email_agreement(request, pk, ems):
     element = Element.objects.filter(unit__book=pk, requested_on=None)
     book = get_object_or_404(Book, pk=pk)
+    media_path = settings.MEDIA_ROOT
+    images_folder="{}/documents/{}".format(media_path, book.isbn)
+    if not path.exists(images_folder):
+        return redirect('requested_list', pk=book.pk)
+
     ems_list = json.loads(ems)    
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
-    media_path = settings.MEDIA_ROOT
+    
     
     jbl_rh_name = ''
     for ems in ems_list:
