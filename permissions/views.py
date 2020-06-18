@@ -578,7 +578,22 @@ def book_list(request):
 def unit_list(request, pk):
     book = get_object_or_404(Book, pk=pk)
 #    unit = get_object_or_404(Unit, pk=pk1)
+    media_path = settings.MEDIA_ROOT
+    images_folder="{}/documents/{}".format(media_path, book.isbn)
+    if not path.exists(images_folder):
+        return render(request, 'no_images.html', {'book': book})
+        
     element = Element.objects.filter(unit__book=pk, requested_on=None)
+    missing_images = []
+    for e in element:
+        image="{}/documents/{}/resized/{}_CH{}_{}{}.png".format(media_path, e.unit.book.isbn,e.unit.book.isbn, e.unit.chapter_number, e.shortform(), e.element_number)
+        if not path.exists(image):
+            im = "{}_CH{}_{}{}.png".format(e.unit.book.isbn, e.unit.chapter_number, e.shortform(), e.element_number)
+            missing_images.append(im)
+
+    if len(missing_images) != 0:
+        return render(request, 'some_images_missing.html', {'book': book, 'missing_images': missing_images})
+
     context = defaultdict(list)
     dict(context)
     source=""
@@ -615,9 +630,6 @@ def email_agreement(request, pk, ems):
     element = Element.objects.filter(unit__book=pk, requested_on=None)
     book = get_object_or_404(Book, pk=pk)
     media_path = settings.MEDIA_ROOT
-    images_folder="{}/documents/{}".format(media_path, book.isbn)
-    if not path.exists(images_folder):
-        return redirect('requested_list', pk=book.pk)
 
     ems_list = json.loads(ems)    
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
@@ -982,6 +994,8 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     unit = get_object_or_404(Unit, pk=pk1)
     element = get_object_or_404(Element, pk=pk2)
     user = User.objects.get(username=request.user.username)
+    
+    media_path = settings.MEDIA_ROOT
 
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
     
@@ -1008,7 +1022,7 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     email.content_subtype = "html"
     # email.send()
 
-    media_path = settings.MEDIA_ROOT
+    
     links="{}/documents/{}/resized/{}_CH{}_{}{}.png".format(media_path, element.unit.book.isbn,element.unit.book.isbn,element.unit.chapter_number,element.shortform(),element.element_number)
     if path.exists(links):
         if element.element_type == "Photo":
@@ -1031,6 +1045,7 @@ def test_followup_email_agreement_e(request, pk, pk1, pk2):
     book = get_object_or_404(Book, pk=pk)
     unit = get_object_or_404(Unit, pk=pk1)
     element = get_object_or_404(Element, pk=pk2)
+    media_path = settings.MEDIA_ROOT
 
     subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
     user_data = User.objects.get(username=request.user.username)
@@ -1050,7 +1065,7 @@ def test_followup_email_agreement_e(request, pk, pk1, pk2):
     email.content_subtype = "html"
     # email.send()  
 
-    media_path = settings.MEDIA_ROOT
+    
     links="{}/documents/{}/resized/{}_CH{}_{}{}.png".format(media_path, element.unit.book.isbn,element.unit.book.isbn,element.unit.chapter_number,element.shortform(),element.element_number)
     print(links)
     if path.exists(links):
