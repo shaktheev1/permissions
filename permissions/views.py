@@ -23,6 +23,7 @@ from io import BytesIO
 from django.db.models import Q
 import subprocess
 from .image_process import i_process
+from .art_proof import i_proof
 from .load_data import import_data
 from .load_contacts import import_contacts
 import pandas as pd
@@ -77,6 +78,18 @@ def testing(request):
     #x = print_hello("Welcome to the party")
     #return HttpResponse("<html><body>{}</body></html>".format(x))
     return HttpResponse("Done")
+
+def generate_art_proof(request, pk):
+    isbn=''
+    isbn = pk
+    media_path = settings.MEDIA_ROOT
+    folder = "{}/art/upload/{}".format(media_path,isbn)
+    if not(path.exists(folder)):
+        return HttpResponse("Image folder does not exist")
+    else:
+        result = i_proof(isbn, media_path)
+    #return HttpResponse("<html><body>{}</body></html>".format(x))
+    return render(request, 'art_proof_status.html', {'result': result})
 
 def process_images(request, pk):
     book = get_object_or_404(Book, pk=pk)
@@ -609,7 +622,7 @@ def unit_list(request, pk):
         s=source,credit_line,rh_email
         context[s].append(p.pk)
     context.default_factory = None
-    return render(request, "elementlist.html", {'context': context, 'element': element, 'pk': pk, 'book': book})
+    return render(request, "elementlist.html", {'context': context, 'element': element, 'pk': pk, 'book': book, })
 
 # def book_list(request):
 #     context = Book.objects.values_list('active', flat=True).distinct()

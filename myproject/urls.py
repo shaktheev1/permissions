@@ -23,6 +23,7 @@ from accounts import views as accounts_views
 from permissions import views
 
 urlpatterns = [
+    url(r'^art_proof/(?P<pk>\d+)/$', views.generate_art_proof, name='generate_art_proof'),
     url(r'^$', views.BookListView.as_view(), name='home'),
     url(r'^books$', views.BookListView.as_view(), name='home'),
     url(r'^books/search$', views.book_search, name='book_search'),

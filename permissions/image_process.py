@@ -12,7 +12,7 @@ def i_process(isbn, media_path):
     root=media_path+"/documents/"+isbn
     if path.exists(root):
         for infile in os.listdir(root):
-            if infile.endswith('.png') or infile.endswith('.tif') or infile.endswith('.jpg') or infile.endswith('.eps')  or infile.endswith('.gif'):
+            if infile.endswith('.png') or infile.endswith('.tif') or infile.endswith('.jpg') or infile.endswith('.eps')  or infile.endswith('.gif') or infile.endswith('.PNG') or infile.endswith('.TIF') or infile.endswith('.JPG') or infile.endswith('.EPS')  or infile.endswith('.GIF'):
                 im = Image.open(os.path.join(root,infile))
                 wpercent = (basewidth / float(im.size[0]))
                 hsize = int((float(im.size[1]) * float(wpercent)))
