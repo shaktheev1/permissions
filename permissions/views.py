@@ -675,7 +675,7 @@ def email_agreement(request, pk, ems):
     user_data = User.objects.get(username=request.user.username)
     message = render_to_string("emailbody.html", {'ems_list': ems_list, 'element': element, 'user': user_data})
    
-    email = EmailMessage(subject, message, 's4permission@gmail.com', e_list)
+    email = EmailMessage(subject, message, 'S4CPermissions@s4carlisle.com', e_list)
 
     html = render_to_string("generate_agreement.html", {'ems_list': ems_list, 'element': element})
     out = BytesIO()
@@ -735,7 +735,7 @@ def test_email_agreement(request, pk, ems):
     user_data = User.objects.get(username=request.user.username)
     message = render_to_string("emailbody.html", {'ems_list': ems_list, 'element': element, 'user': user_data})
 
-    email = EmailMessage(subject, message, 's4permission@gmail.com', [request.user.email])
+    email = EmailMessage(subject, message, 'S4CPermissions@s4carlisle.com', [request.user.email])
     
     html = render_to_string("generate_agreement.html", {'ems_list': ems_list, 'element': element})
     out = BytesIO()
@@ -931,7 +931,7 @@ def followup_email_agreement(request, pk, ems):
     subject = "Jones & Bartlett Permission Request_{}_{}".format(book.isbn, jbl_rh_name)
     message = render_to_string("emailbody_followup.html", {'ems_list': ems_list, 'element': element, 'user': user_data, 'dates': dates})
 
-    email = EmailMessage(subject, message, 's4permission@gmail.com', e_list)
+    email = EmailMessage(subject, message, 'S4CPermissions@s4carlisle.com', e_list)
 
     html = render_to_string("generate_followup_agreement.html", {'ems_list': ems_list, 'element': element})
     out = BytesIO()
@@ -978,7 +978,7 @@ def test_followup_email_agreement(request, pk, ems):
     user_data = User.objects.get(username=request.user.username)
     message = render_to_string("emailbody_followup.html", {'ems_list': ems_list, 'element': element, 'user': user_data})
     
-    email = EmailMessage(subject, message, 's4permission@gmail.com', [request.user.email])
+    email = EmailMessage(subject, message, 'S4CPermissions@s4carlisle.com', [request.user.email])
 
     for ems in ems_list:
         for e in element:
@@ -1033,7 +1033,7 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     user_data = User.objects.get(username=request.user.username)
     message = render_to_string("emailbody_followup_e.html", {'element': element, 'user': user_data})
 
-    email = EmailMessage(subject, message, 's4permission@gmail.com', e_list)
+    email = EmailMessage(subject, message, 'S4CPermissions@s4carlisle.com', e_list)
    
 
     html = render_to_string("generate_followup_agreement_e.html", {'element': element})
@@ -1074,7 +1074,7 @@ def test_followup_email_agreement_e(request, pk, pk1, pk2):
     user_data = User.objects.get(username=request.user.username)
     message = render_to_string("emailbody_followup_e.html", {'element': element, 'user': user_data})
 
-    email = EmailMessage(subject, message, 's4permission@gmail.com', [request.user.email])
+    email = EmailMessage(subject, message, 'S4CPermissions@s4carlisle.com', [request.user.email])
 
     jbl_rh_name = element.jbl_rh_name
     rh_name = jbl_rh_name.replace(" ", "_")

@@ -172,9 +172,14 @@ LOGOUT_REDIRECT_URL = 'home'
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 's4permission@gmail.com'
-EMAIL_HOST_PASSWORD = 'S4Carlisle#123'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = 's4permission@gmail.com'
+# EMAIL_HOST_PASSWORD = 'S4Carlisle#123'
+# EMAIL_PORT = 587
+
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_HOST_USER = 'S4CPermissions@s4carlisle.com'
+EMAIL_HOST_PASSWORD = 'Gaj78797'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'
