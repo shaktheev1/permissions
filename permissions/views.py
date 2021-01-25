@@ -26,6 +26,7 @@ from .image_process import i_process
 from .art_proof import i_proof
 from .load_data import import_data
 from .load_contacts import import_contacts
+from csv import DictReader
 import pandas as pd
 import logging
 import socket
@@ -33,6 +34,8 @@ import errno
 from os import path
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector
+
+from pytz import UTC
 
 logging.config.dictConfig({
     'version': 1,
@@ -115,6 +118,14 @@ def process_data(request, pk):
         isbn = book.isbn
         media_path = settings.MEDIA_ROOT
         data = imported_data.export('df')
+
+        # bk = Book.objects.get(isbn=isbn)
+        # for u in set(data['Chapter Number']):
+        #     if pd.isnull(u)==False:
+        #          if (Unit.objects.filter(book_id = bk, chapter_number = u).count() != 0):
+        #             result="Chapter already exists..."
+        #             return render(request, 'import_status.html', {'book': book, 'result': result})
+
         result = import_data(isbn, data)
         user = request.user.username
         logger.info("ISBN: {}. Data imported by {} at {}.".format(isbn, user, timezone.now()))
@@ -645,7 +656,6 @@ def email_agreement(request, pk, ems):
     media_path = settings.MEDIA_ROOT
 
     ems_list = json.loads(ems)    
-    subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
     
     
     jbl_rh_name = ''
@@ -657,7 +667,7 @@ def email_agreement(request, pk, ems):
 
     if jbl_rh_name=='':
         return redirect('unit_list', pk=book.pk)
-    
+    subject = "Jones & Bartlett Permission Request_{}_{}".format(book.isbn, jbl_rh_name)
     rh_name = jbl_rh_name.replace(" ", "_")
 
     e_list = email_rh.split (",")
@@ -707,7 +717,7 @@ def test_email_agreement(request, pk, ems):
     element = Element.objects.filter(unit__book=pk, requested_on=None)
     book = get_object_or_404(Book, pk=pk)
     ems_list = json.loads(ems)    
-    subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
+    
     media_path = settings.MEDIA_ROOT
 
     jbl_rh_name = ''
@@ -718,6 +728,8 @@ def test_email_agreement(request, pk, ems):
                 jbl_rh_name = e.jbl_rh_name
     if jbl_rh_name=='':
         return redirect('unit_list', pk=book.pk)
+
+    subject = "Jones & Bartlett Permission Request_{}_{}".format(book.isbn, jbl_rh_name)
 
     rh_name = jbl_rh_name.replace(" ", "_")
     user_data = User.objects.get(username=request.user.username)
@@ -916,7 +928,7 @@ def followup_email_agreement(request, pk, ems):
     e_list = email_rh.split (",")            
     dates.default_factory = None
     user_data = User.objects.get(username=request.user.username)  
-    subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
+    subject = "Jones & Bartlett Permission Request_{}_{}".format(book.isbn, jbl_rh_name)
     message = render_to_string("emailbody_followup.html", {'ems_list': ems_list, 'element': element, 'user': user_data, 'dates': dates})
 
     email = EmailMessage(subject, message, 's4permission@gmail.com', e_list)
@@ -963,7 +975,6 @@ def test_followup_email_agreement(request, pk, ems):
     ems_list = json.loads(ems)
     media_path = settings.MEDIA_ROOT
 
-    subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
     user_data = User.objects.get(username=request.user.username)
     message = render_to_string("emailbody_followup.html", {'ems_list': ems_list, 'element': element, 'user': user_data})
     
@@ -975,6 +986,7 @@ def test_followup_email_agreement(request, pk, ems):
                 jbl_rh_name = e.jbl_rh_name
     rh_name = jbl_rh_name.replace(" ", "_")
     
+    subject = "Jones & Bartlett Permission Request_{}_{}".format(book.isbn, jbl_rh_name)
     html = render_to_string("generate_followup_agreement.html", {'ems_list': ems_list, 'element': element})
     out = BytesIO()
     stylesheets = [weasyprint.CSS(settings.STATIC_ROOT + 'css/pdf.css')]
@@ -1009,8 +1021,6 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     user = User.objects.get(username=request.user.username)
     
     media_path = settings.MEDIA_ROOT
-
-    subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
     
     jbl_rh_name = element.jbl_rh_name
     if jbl_rh_name=='':
@@ -1019,7 +1029,7 @@ def followup_email_agreement_e(request, pk, pk1, pk2):
     
     email_rh = element.contact.rh_email
     e_list = email_rh.split (",")
-
+    subject = "Jones & Bartlett Permission Request_{}_{}".format(book.isbn, jbl_rh_name)
     user_data = User.objects.get(username=request.user.username)
     message = render_to_string("emailbody_followup_e.html", {'element': element, 'user': user_data})
 
@@ -1060,7 +1070,7 @@ def test_followup_email_agreement_e(request, pk, pk1, pk2):
     element = get_object_or_404(Element, pk=pk2)
     media_path = settings.MEDIA_ROOT
 
-    subject = "Jones & Bartlett Permission Request - {}, {}".format(book.title, book.isbn)
+    subject = "Jones & Bartlett Permission Request_{}_{}".format(book.isbn, element.jbl_rh_name)
     user_data = User.objects.get(username=request.user.username)
     message = render_to_string("emailbody_followup_e.html", {'element': element, 'user': user_data})
 

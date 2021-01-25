@@ -23,9 +23,10 @@
 </head>
 {% block content %}
 <body>
+<p><span style="float:right;"><b>Date: {% now "m/d/Y" %}</b></span></p>
 <p style="text-align:left;"><b>{% with element.all|first as e %}
-  <b>{{ e.contact.rh_address|linebreaksbr }}</b>
-{% endwith %}</b> <span style="float:right;"><b>Date: {% now "m/d/Y" %}</b></span><br/>
+  <b>{{ e.contact.rh_address |linebreaksbr }}</b>
+{% endwith %}</b>
 </p>
 <br/>
 {% with element.all|first as e %}
