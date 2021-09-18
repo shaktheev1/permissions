@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <head>
 <meta charset="utf-8">
@@ -12,9 +13,10 @@
 <p>Hope you are doing well!</p>
 <p>I am {{user.first_name}}, Permission Specialist writing on behalf of my client Jones & Bartlett Learning, a textbook publishing company. I am currently working on </p>
 <p>{% with element.all|first as e %}
-  <b>{{ e.title }}</b>
-{% endwith %}</p>
-<p>We would like to obtain permission to use the attached image(s) of for this edition:
+  <b>{{ e.title }}, ISBN {{e.unit.book.isbn}}</b>
+  {% endwith %}</p>
+
+<p>We would like to obtain permission to use the attached item(s) for this edition:</p>
 {% spaceless %}
 <ol>    
 {% for ems in ems_list %}
@@ -45,7 +47,9 @@ I have attached a copy of the permission request for you, which contains more in
 {% endfor %}
 </ol>
 {% endspaceless %}
-<p>I have attached image(s) for your reference. <b>Could you please sign and return a copy of the attached permission letter to my attention via E‐mail along with Hi resolution image(s)?</b> You can find the requested content at the end of the permission letter. Please let know if you have any questions or concerns about the rights that we are requesting.</p>
+<p>I have attached item(s) for your reference. <b>Could you please sign and return a copy of the attached permission letter to my attention via E‐mail along with {% for e in ems_element_type%}
+    {% if e == 'Photo'%}{% ifchanged e %}Hi resolution{% endifchanged %}{% endif %}
+{% endfor %} image(s)?</b> You can find the requested content at the end of the permission letter. Please let know if you have any questions or concerns about the rights that we are requesting.</p>
 <p>Your prompt response would be greatly appreciated!</p>
 <p>Thanks in advance for your help.</p>
 <p>Regards,<br/>
@@ -53,6 +57,9 @@ I have attached a copy of the permission request for you, which contains more in
 Sr. Executive ‐ Text & Permissions,<br/>
 Rights and Media Services,<br/>
 S4Carlisle Publishing Services Pvt. Ltd.</p>
+{% load templates %} 
+{% current_time "%m %d %y" %}
+
 
 </body>
 {% endblock %}

@@ -657,7 +657,6 @@ def email_agreement(request, pk, ems):
 
     ems_list = json.loads(ems)    
     
-    
     jbl_rh_name = ''
     for ems in ems_list:
         for e in element:
@@ -721,11 +720,12 @@ def test_email_agreement(request, pk, ems):
     media_path = settings.MEDIA_ROOT
 
     jbl_rh_name = ''
-
+    ems_element_type = []
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
                 jbl_rh_name = e.jbl_rh_name
+                ems_element_type.append(e.element_type)
     if jbl_rh_name=='':
         return redirect('unit_list', pk=book.pk)
 
@@ -763,14 +763,20 @@ def test_email_agreement(request, pk, ems):
             print('There was an error sending an email: ', e)
             internet_socket = False
 
-    return render(request, 'test_email_agreement_status.html', {'book': book, 'user': user_data, 'internet_socket': internet_socket})
+    return render(request, 'test_email_agreement_status.html', {'book': book, 'user': user_data, 'internet_socket': internet_socket, 'ems_element_type': ems_element_type})
 
 def email_body(request, pk, ems):
     element = Element.objects.filter(unit__book=pk)
     book = get_object_or_404(Book, pk=pk)
     ems_list = json.loads(ems)
     user_data = User.objects.get(username=request.user.username)
-    return render(request, 'emailbody.html', {'ems_list': ems_list, 'element': element, 'user': user_data})
+    ems_element_type = []
+    for ems in ems_list:
+        for e in element:
+            if ems==e.pk:
+                jbl_rh_name = e.jbl_rh_name
+                ems_element_type.append(e.element_type)
+    return render(request, 'emailbody.html', {'ems_list': ems_list, 'element': element, 'user': user_data, 'ems_element_type': ems_element_type})
 
 def requested_list(request, pk):
     book = get_object_or_404(Book, pk=pk)
@@ -979,7 +985,7 @@ def test_followup_email_agreement(request, pk, ems):
     message = render_to_string("emailbody_followup.html", {'ems_list': ems_list, 'element': element, 'user': user_data})
     
     email = EmailMessage(subject, message, 'S4CPermissions@s4carlisle.com', [request.user.email])
-
+   
     for ems in ems_list:
         for e in element:
             if ems==e.pk:
