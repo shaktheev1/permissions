@@ -57,7 +57,7 @@ logging.config.dictConfig({
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'formatter': 'file',
-            'filename': '/Volumes/Data/move_on/django/projects/myproject/myproject/log/debug.log'
+            'filename': '../log/debug.log'
         }
     },
     'loggers': {
